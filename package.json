@@ -8,6 +8,7 @@
     "build": "tsc",
     "build:ci": "npm i && npm run build",
     "build:watch": "tsc -w",
+    "prepublishOnly": "npm run build:ci",
     "dev": "npm run build:watch"
   },
   "repository": {
@@ -38,6 +39,9 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "jadl": "0.0.8"
+    "@discord-rose/rest": "^1.0.0",
+    "@jadl/embed": "0.0.3",
+    "jadl": "0.0.9",
+    "reflect-metadata": "^0.1.13"
   }
 }

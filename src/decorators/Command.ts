@@ -1,7 +1,7 @@
-import { Symbols } from '../symbols'
-import { createBaseDecorator } from '../utils/Decorators'
+import { Symbols } from '../Symbols'
+import { Decorators } from '../utils/Decorators'
 
-export const Command = createBaseDecorator<[
+export const Command = Decorators.createBaseDecorator<[
   name: string,
   description?: string
 ]>(([name, description], command) => {

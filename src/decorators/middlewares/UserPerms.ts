@@ -1,8 +1,10 @@
-import { createCommandDecorator } from '../../utils/Decorators'
+import { Decorators } from '../../utils/Decorators'
 
-import { PermissionUtils } from 'jadl'
+import { humanReadablePermissions, PermissionUtils } from 'jadl'
+import { CommandError } from '../../structures/CommandError'
+import { Embed } from '@jadl/embed'
 
-export const UserPerms = createCommandDecorator<[
+export const UserPerms = Decorators.createCommandDecorator<[
   permission: keyof typeof PermissionUtils['bits'] | Array<keyof typeof PermissionUtils['bits']>
 ]>(
   ([_perms], cmd) => {
@@ -14,7 +16,10 @@ export const UserPerms = createCommandDecorator<[
       const missing = perms.filter(x => !PermissionUtils.has(BigInt(int.member?.permissions!), x))
 
       if (missing.length > 0) {
-        return false // TODO
+        throw new CommandError(new Embed()
+          .color('Red')
+          .description(`You\'re missing the following permissions: ${missing.map(x => humanReadablePermissions[x]).join(', ')}`)
+        )
       }
 
       return true

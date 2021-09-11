@@ -1,7 +1,7 @@
-import { Symbols } from '../symbols'
-import { createBaseDecorator } from '../utils/Decorators'
+import { Symbols } from '../Symbols'
+import { Decorators } from '../utils/Decorators'
 
-export const Alias = createBaseDecorator<[
+export const Alias = Decorators.createBaseDecorator<[
   alias: string | string[],
   thing: 'a'
 ]>(([alias], command) => {

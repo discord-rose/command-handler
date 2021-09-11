@@ -1,6 +1,5 @@
-import { APIInteraction, GatewayInteractionCreateDispatchData, InteractionType } from 'discord-api-types'
-import { DiscordEventMap } from 'jadl'
-import { Symbols } from '../symbols'
+import { Worker } from 'jadl'
+import { Symbols } from '../Symbols'
 import { BaseSymbols } from '../utils/Decorators'
 
 export class CommandFactory {
@@ -25,7 +24,7 @@ export class CommandFactory {
     return json
   } 
 
-  constructor (commands: { new(): any }[]) {
+  constructor (commands: { new(): any }[], worker?: Worker) {
     commands.forEach(Command => {
       const cmd = new Command()
 
@@ -34,27 +33,11 @@ export class CommandFactory {
         else cmd[symbol] = Command[symbol]
       })
 
-      console.log(JSON.stringify(CommandFactory.commandToJson(cmd), null, 4))
-
       this.commands.push(cmd)
     })
   }
 
   findCommand (name: string): BaseSymbols | undefined {
     return this.commands.find(cmd => cmd[Symbols.commandName] === name || cmd[Symbols.aliases].includes(name))
-  }
-
-  handleInteraction (interaction: DiscordEventMap['INTERACTION_CREATE']) {
-    if (interaction.type !== InteractionType.ApplicationCommand) return
-
-    const command = this.findCommand(interaction.data.name)
-    if (!command) return
-
-    // TODO sub commands
-
-    const baseCommand = command[Symbols.commands].find(x => x.name === Symbols.baseCommand)
-    if (!baseCommand) return
-
-    command[baseCommand.method]?.()
   }
 }
