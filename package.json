@@ -8,6 +8,7 @@
     "build": "tsc",
     "build:ci": "npm i && npm run build",
     "build:watch": "tsc -w",
+    "lint": "eslint ./src",
     "prepublishOnly": "npm run build:ci",
     "dev": "npm run build:watch"
   },
