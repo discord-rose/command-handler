@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class Symbols {
   static prefix = '__jadl.'
 

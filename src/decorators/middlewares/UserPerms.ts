@@ -13,12 +13,12 @@ export const UserPerms = Decorators.createCommandDecorator<[
     cmd.canRun.push(function CheckUserPermissions (int) {
       if (!int.member) return true
 
-      const missing = perms.filter(x => !PermissionUtils.has(BigInt(int.member?.permissions!), x))
+      const missing = perms.filter(x => !PermissionUtils.has(BigInt(int.member!.permissions), x))
 
       if (missing.length > 0) {
         throw new CommandError(new Embed()
           .color('Red')
-          .description(`You\'re missing the following permissions: ${missing.map(x => humanReadablePermissions[x]).join(', ')}`)
+          .description(`You're missing the following permissions: ${missing.map(x => humanReadablePermissions[x]).join(', ')}`)
         )
       }
 

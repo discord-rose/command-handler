@@ -8,5 +8,5 @@ export const Command = Decorators.createBaseDecorator<[
   command[Symbols.commandName] = name
 
   command[Symbols.interaction].name = name
-  command[Symbols.interaction].description = description || 'Missing Description'
+  command[Symbols.interaction].description = description ?? 'Missing Description'
 })

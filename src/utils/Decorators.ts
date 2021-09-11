@@ -5,10 +5,10 @@ import { Worker } from 'jadl'
 import { CommandInteraction } from '../types'
 
 export interface CommandMeta {
-  canRun: RunningFunction<boolean>[]
-  onRun: RunningFunction<void>[]
-  name: string|symbol,
-  params: ParamResolver[],
+  canRun: Array<RunningFunction<boolean>>
+  onRun: Array<RunningFunction<void>>
+  name: string|symbol
+  params: ParamResolver[]
   method: string
 }
 
@@ -36,12 +36,12 @@ export const Decorators = {
         [Symbols.commandName, Symbols.aliases, Symbols.interaction].forEach(symbol => {
           if (target[symbol] === undefined) {
             target[symbol] = new baseSymbols[symbol].constructor()
-          } else if (!target.hasOwnProperty(symbol)) {
+          } else if (!Object.hasOwnProperty.call(target, symbol)) {
             target[symbol] = Object.assign(target[symbol], new baseSymbols[symbol].constructor())
           }
         })
-  
-        handler(options, target)
+
+        void handler(options, target)
       }
     }
   },
@@ -49,8 +49,8 @@ export const Decorators = {
   setupCommandMeta: (target: BaseSymbols) => {
     if (target[Symbols.commands] === undefined) {
       target[Symbols.commands] = []
-    } else if (!target.hasOwnProperty(Symbols.commands)) {
-      target[Symbols.commands] = [ ...target[Symbols.commands] ]
+    } else if (!Object.hasOwnProperty.call(target, Symbols.commands)) {
+      target[Symbols.commands] = [...target[Symbols.commands]]
     }
 
     if (!target[Symbols.interaction]) target[Symbols.interaction] = { name: 'null', description: 'null' }
@@ -79,8 +79,8 @@ export const Decorators = {
         Decorators.setupCommandMeta(target)
 
         const command = Decorators.getCommandMeta(target, method)
-  
-        running(options, command, target, descriptor)
+
+        void running(options, command, target, descriptor)
       }
     }
   },

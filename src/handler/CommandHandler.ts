@@ -1,6 +1,6 @@
 import { DiscordEventMap, Worker } from 'jadl'
 
-import { MessagesResource, MessageTypes, RestManager } from '@discord-rose/rest'
+import { MessagesResource, MessageTypes } from '@discord-rose/rest'
 
 import { CommandFactory } from '..'
 import { Symbols } from '../Symbols'
@@ -14,17 +14,17 @@ export interface CommandHandlerOptions {
 }
 
 export class CommandHandler extends CommandFactory {
-  constructor (private worker: Worker, commands: { new(): any }[], options: CommandHandlerOptions = {
-    
+  constructor (private readonly worker: Worker, commands: Array<new() => any>, options: CommandHandlerOptions = {
+
   }) {
     super(commands, worker)
 
     worker.on('INTERACTION_CREATE', (int) => {
-      this.handleInteraction(int)
+      void this.handleInteraction(int)
     })
 
     worker.on('READY', () => {
-      this.worker.api.interactions.set(
+      void this.worker.api.interactions.set(
         this.commands.map(x => x[Symbols.interaction]),
         this.worker.user.id,
         options.interactionGuild
@@ -34,7 +34,7 @@ export class CommandHandler extends CommandFactory {
     })
   }
 
-  async handleInteraction (interaction: DiscordEventMap['INTERACTION_CREATE']) {
+  async handleInteraction (interaction: DiscordEventMap['INTERACTION_CREATE']): Promise<void> {
     if (interaction.type !== InteractionType.ApplicationCommand) return
     if (interaction.data.type !== ApplicationCommandType.ChatInput) return
 
@@ -74,10 +74,10 @@ export class CommandHandler extends CommandFactory {
 
   handleRes (res: MessageTypes, int: CommandInteraction): void {
     if (!int.responded) {
-      this.worker.api.interactions.callback(int.id, int.token, { type: InteractionResponseType.ChannelMessageWithSource, data: MessagesResource._formMessage(res) })
+      void this.worker.api.interactions.callback(int.id, int.token, { type: InteractionResponseType.ChannelMessageWithSource, data: MessagesResource._formMessage(res) })
     } else {
       int.responded = true
-      this.worker.api.webhooks.editMessage(this.worker.user.id, int.token, '@original', res)
+      void this.worker.api.webhooks.editMessage(this.worker.user.id, int.token, '@original', res)
     }
   }
 }

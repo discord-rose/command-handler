@@ -5,6 +5,7 @@ import { BaseSymbols } from '../utils/Decorators'
 export class CommandFactory {
   commands: BaseSymbols[] = []
 
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   static commandToJson (cmd: BaseSymbols) {
     const json = {
       name: cmd[Symbols.commandName],
@@ -22,9 +23,9 @@ export class CommandFactory {
     })
 
     return json
-  } 
+  }
 
-  constructor (commands: { new(): any }[], worker?: Worker) {
+  constructor (commands: Array<new() => any>, worker?: Worker) {
     commands.forEach(Command => {
       const cmd = new Command()
 
