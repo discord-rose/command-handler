@@ -1,7 +1,7 @@
 {
-  "name": "@discord-rose/command-handler",
+  "name": "@jadl/cmd",
   "version": "0.0.1",
-  "description": "A command handler for discord-rose",
+  "description": "A command handler for JADL",
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -27,13 +27,17 @@
   },
   "homepage": "https://github.com/discord-rose/command-handler#readme",
   "devDependencies": {
+    "@types/node": "^16.6.1",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
+    "discord-api-types": "^0.23.1",
     "eslint": "^7.32.0",
     "eslint-config-standard-with-typescript": "^20.0.0",
     "eslint-plugin-import": "^2.24.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.3.1",
-    "@types/node": "^16.6.1",
     "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "jadl": "0.0.8"
   }
 }
