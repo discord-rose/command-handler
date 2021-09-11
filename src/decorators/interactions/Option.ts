@@ -22,13 +22,17 @@ export const CommandOption = Decorators.createParamaterDecorator<[
   }
 })
 
+const CreateOption = (type: ApplicationCommandOptionType) => {
+  return (name: string, description: string, required?: boolean) => CommandOption({ type, name, description, required })
+}
+
 export const Options = {
-  String: (name: string, description: string) => CommandOption({ type: ApplicationCommandOptionType.String, name, description }),
-  Integer: (name: string, description: string) => CommandOption({ type: ApplicationCommandOptionType.Integer, name, description }),
-  Boolean: (name: string, description: string) => CommandOption({ type: ApplicationCommandOptionType.Boolean, name, description }),
-  User: (name: string, description: string) => CommandOption({ type: ApplicationCommandOptionType.User, name, description }),
-  Channel: (name: string, description: string) => CommandOption({ type: ApplicationCommandOptionType.Channel, name, description }),
-  Role: (name: string, description: string) => CommandOption({ type: ApplicationCommandOptionType.Role, name, description }),
-  Mentionable: (name: string, description: string) => CommandOption({ type: ApplicationCommandOptionType.Mentionable, name, description }),
-  Number: (name: string, description: string) => CommandOption({ type: ApplicationCommandOptionType.Number, name, description })
+  String: CreateOption(ApplicationCommandOptionType.String),
+  Integer: CreateOption(ApplicationCommandOptionType.Integer),
+  Boolean: CreateOption(ApplicationCommandOptionType.Boolean),
+  User: CreateOption(ApplicationCommandOptionType.User),
+  Channel: CreateOption(ApplicationCommandOptionType.Channel),
+  Role: CreateOption(ApplicationCommandOptionType.Role),
+  Mentionable: CreateOption(ApplicationCommandOptionType.Mentionable),
+  Number: CreateOption(ApplicationCommandOptionType.Number)
 }

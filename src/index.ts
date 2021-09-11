@@ -15,6 +15,7 @@ export * from './decorators/paramaters/Id'
 export * from './decorators/paramaters/Interaction'
 export * from './decorators/paramaters/GetWorker'
 export * from './decorators/paramaters/Guild'
+export * from './decorators/paramaters/Author'
 
 export * from './handler/CommandFactory'
 export * from './handler/CommandHandler'
