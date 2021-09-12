@@ -2,7 +2,7 @@ import { APIApplicationCommandOption, ApplicationCommandOptionType, ApplicationC
 import { Symbols } from '../..'
 import { Decorators } from '../../utils/Decorators'
 
-export const CommandOption = Decorators.createParamaterDecorator<[
+export const CommandOption = Decorators.createParameterDecorator<[
   data: APIApplicationCommandOption
 ]>(([data], _cmd, base) => {
   if (!base[Symbols.interaction].options) base[Symbols.interaction].options = []

@@ -1,5 +1,5 @@
 import { Decorators } from '../../utils/Decorators'
 
-export const GetWorker = Decorators.createParamaterDecorator((opt, cmd, base) => {
+export const GetWorker = Decorators.createParameterDecorator((opt, cmd, base) => {
   return (_int, worker) => worker
 })

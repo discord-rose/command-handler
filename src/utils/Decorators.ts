@@ -27,7 +27,7 @@ export type BaseSymbols = typeof baseSymbols
 
 export type baseDecorator <O extends any> = (options: O, command: BaseSymbols) => void | Promise<void>
 export type commandDecorator <O extends any> = (options: O, command: CommandMeta, base: BaseSymbols, descriptor: TypedPropertyDescriptor<Function>) => void | Promise<void>
-export type paramaterDecorator <O extends any> = (options: O, command: CommandMeta, base: BaseSymbols) => ParamResolver
+export type parameterDecorator <O extends any> = (options: O, command: CommandMeta, base: BaseSymbols) => ParamResolver
 
 export const Decorators = {
   createBaseDecorator: <O extends any[] = undefined[]> (handler: baseDecorator<O>): (...options: O) => ClassDecorator => {
@@ -85,7 +85,7 @@ export const Decorators = {
     }
   },
 
-  createParamaterDecorator: <O extends any[] = undefined[]> (paramHandler: paramaterDecorator<O>): (...options: O) => ParameterDecorator => {
+  createParameterDecorator: <O extends any[] = undefined[]> (paramHandler: parameterDecorator<O>): (...options: O) => ParameterDecorator => {
     return function (...options): ParameterDecorator {
       return function (target: BaseSymbols, method: string, index: number) {
         Decorators.setupCommandMeta(target)

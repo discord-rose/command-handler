@@ -45,9 +45,9 @@ export class WaveCommand {
 
 Simplest command in the book. Lets get a bit more advanced.
 
-### Accessing data with paramater decorators
+### Accessing data with parameter decorators
 
-Using paramater decorators is how we access all of our important data, to make your command a real command
+Using parameter decorators is how we access all of our important data, to make your command a real command
 
 Many of them exist and allow for adding and using interaction options, or just accessing your normal data objects
 
@@ -63,7 +63,7 @@ export class WaveCommand {
   wave (
     @Options.User('user', 'User to wave at') userId: Snowflake // creates an option accepting type user
   ) {
-    // you can now use this paramater as it's actual value! making it super easy to do what you need to do
+    // you can now use this parameter as it's actual value! making it super easy to do what you need to do
     return new Embed()
       .description(`Hey <@${userId}>! Someone waved at you`)
   }
@@ -148,13 +148,13 @@ export class WaveCommand {
 }
 ```
 
-### Paramater decorators
+### Parameter decorators
 
-Paramater decorators are used to pass data to the running method when a command has been ran
+Parameter decorators are used to pass data to the running method when a command has been ran
 
-The essential way this works is that you're giving the command handler a function that will be ran and positioned to your method based on the paramater
+The essential way this works is that you're giving the command handler a function that will be ran and positioned to your method based on the parameter
 
-You can create these with the `Decorators.createParamaterDecorator()` method
+You can create these with the `Decorators.createParameterDecorator()` method
 
 e.g let's make a database decorator
 
@@ -163,8 +163,8 @@ e.g let's make a database decorator
 import { Decorators } from '@jadl/cmd'
 
 // you can add options the same was as was done above, however we don't need that here
-export const Db = Decorators.createParamaterDecorator((options) => {
-  return async (interaction, worker) => { // this method is ran EVERYTIME a command is ran, and it's return value is what shows up on the paramater for your method
+export const Db = Decorators.createParameterDecorator((options) => {
+  return async (interaction, worker) => { // this method is ran EVERYTIME a command is ran, and it's return value is what shows up on the parameter for your method
     return await worker.db.guildSettings.get(interaction.guild_id) // returns the guild's database
   }
 })
@@ -178,7 +178,7 @@ import { Db } from '../decorators/Db'
 export class WaveCommand {
   @Run()
   wave (
-    @Db() db: GuildSettings, // makes our db paramater
+    @Db() db: GuildSettings, // makes our db parameter
     @Author() author: APIUser // and you can add as many of these params as you'd like!
   ) {
     // and now db will be whatever was returned in the Db decorator!
