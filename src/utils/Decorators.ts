@@ -74,7 +74,7 @@ export const Decorators = {
   },
 
   createCommandDecorator: <O extends any[] = undefined[]> (running: commandDecorator<O>): (...options: O) => MethodDecorator => {
-    return function (...options): MethodDecorator {
+    return function (...options) {
       return function (target: BaseSymbols, method: string, descriptor: TypedPropertyDescriptor<any>) {
         Decorators.setupCommandMeta(target)
 

@@ -1,10 +1,11 @@
 import { DiscordEventMap, Worker } from 'jadl'
 
-import { MessagesResource, MessageTypes } from '@discord-rose/rest'
+import { CommandFactory } from '../handler/CommandFactory'
 
-import { CommandFactory } from '..'
+import { formatMessage, MessageTypes } from '../utils/MessageFormatter'
+
 import { Symbols } from '../Symbols'
-import { ApplicationCommandType, InteractionResponseType, InteractionType, Snowflake } from 'discord-api-types'
+import { ApplicationCommandType, InteractionType, Snowflake } from 'discord-api-types'
 
 import { CommandError } from '../structures/CommandError'
 import { CommandInteraction } from '../types'
@@ -71,11 +72,20 @@ export class CommandHandler extends CommandFactory {
   }
 
   handleRes (res: MessageTypes, int: CommandInteraction): void {
+    const msg = formatMessage(res)
+
+    const toSend: any = {
+      body: msg.data,
+      headers: msg.type === 'formdata' ? msg.data.getHeaders() : undefined
+    }
+
+    if (msg.type === 'formdata') toSend.parser = (_) => _
+
     if (!int.responded) {
-      void this.worker.api.interactions.callback(int.id, int.token, { type: InteractionResponseType.ChannelMessageWithSource, data: MessagesResource._formMessage(res) })
+      void this.worker.api.request('POST', `/interactions/${int.id}/${int.token}/callback`, toSend)
     } else {
       int.responded = true
-      void this.worker.api.webhooks.editMessage(this.worker.user.id, int.token, '@original', res)
+      void this.worker.api.request('PATCH', `/webhooks/${this.worker.user.id}/${int.token}/messages/@original`, toSend)
     }
   }
 }

@@ -23,3 +23,6 @@ export * from './handler/CommandFactory'
 export * from './handler/CommandHandler'
 
 export * from './structures/CommandError'
+export * from './structures/FileBuilder'
+
+export * from './utils/MessageFormatter'
