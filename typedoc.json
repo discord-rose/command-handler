@@ -5,6 +5,5 @@
   "name": "@jadl/cmd",
   "excludeExternals": true,
   "excludePrivate": true,
-  "excludeInternal": true,
-  "theme": "minimal"
+  "excludeInternal": true
 }
