@@ -1,0 +1,10 @@
+{
+  "out": "./docs/",
+  "entryPoints": ["src/index.ts"],
+  "readme": "./README.md",
+  "name": "@jadl/cmd",
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "theme": "minimal"
+}

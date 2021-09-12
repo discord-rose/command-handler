@@ -29,7 +29,7 @@ export class CommandHandler extends CommandFactory {
         this.worker.user.id,
         options.interactionGuild
       ).then(() => {
-        console.log('Set interactions')
+        this.worker.log('Posted interactions')
       })
     })
   }
@@ -45,8 +45,6 @@ export class CommandHandler extends CommandFactory {
 
     const baseCommand = command[Symbols.commands].find(x => x.name === Symbols.baseCommand)
     if (!baseCommand) return
-
-    console.log('running command')
 
     try {
       for (const runner of baseCommand.canRun) {
