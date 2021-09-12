@@ -61,11 +61,11 @@ import { Embed } from '@jadl/embed' // optional, but used for embeds!
 export class WaveCommand {
   @Run()
   wave (
-    @Options.User('user', 'User to wave at') user: APIUser // creates an option accepting type user
+    @Options.User('user', 'User to wave at') userId: Snowflake // creates an option accepting type user
   ) {
     // you can now use this paramater as it's actual value! making it super easy to do what you need to do
     return new Embed()
-      .description(`Hey ${user.username}! Someone waved at you`)
+      .description(`Hey <@${userId}>! Someone waved at you`)
   }
 }
 
