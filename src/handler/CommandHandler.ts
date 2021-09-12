@@ -5,7 +5,7 @@ import { CommandFactory } from '../handler/CommandFactory'
 import { formatMessage, MessageTypes } from '../utils/MessageFormatter'
 
 import { Symbols } from '../Symbols'
-import { ApplicationCommandType, InteractionType, Snowflake } from 'discord-api-types'
+import { ApplicationCommandType, InteractionResponseType, InteractionType, Snowflake } from 'discord-api-types'
 
 import { CommandError } from '../structures/CommandError'
 import { CommandInteraction } from '../types'
@@ -58,10 +58,10 @@ export class CommandHandler extends CommandFactory {
 
       const res = await command[baseCommand.method]?.(interaction, this.worker)
 
-      this.handleRes?.(res, interaction as CommandInteraction)
+      void this.handleRes?.(res, interaction as CommandInteraction)
     } catch (err: unknown) {
       if (err instanceof CommandError) {
-        this.handleRes(err.response, interaction as CommandInteraction)
+        void this.handleRes(err.response, interaction as CommandInteraction)
       } else if (err instanceof Error) {
         err.message += ` (In command ${baseCommand.name === Symbols.baseCommand ? command[Symbols.commandName] : baseCommand.name.toString()})`
         console.error(err)
@@ -71,19 +71,31 @@ export class CommandHandler extends CommandFactory {
     }
   }
 
-  handleRes (res: MessageTypes, int: CommandInteraction): void {
+  async handleRes (res: MessageTypes, int: CommandInteraction): Promise<void> {
     const msg = formatMessage(res)
 
-    const toSend: any = {
-      body: msg.data,
-      headers: msg.type === 'formdata' ? msg.data.getHeaders() : undefined
-    }
+    const toSend = msg.type === 'json'
+      ? {
+          body: int.responded
+            ? msg.data
+            : {
+                type: InteractionResponseType.ChannelMessageWithSource,
+                data: msg.data
+              }
+        }
+      : {
+          body: msg.data,
+          parser: (_) => _,
+          headers: msg.data.getHeaders()
+        }
 
-    if (msg.type === 'formdata') toSend.parser = (_) => _
-
-    if (!int.responded) {
+    if (!int.responded && msg.type !== 'formdata') {
       void this.worker.api.request('POST', `/interactions/${int.id}/${int.token}/callback`, toSend)
     } else {
+      if (!int.responded) {
+        await this.worker.api.interactions.callback(int.id, int.token, { type: InteractionResponseType.DeferredChannelMessageWithSource })
+      }
+
       int.responded = true
       void this.worker.api.request('PATCH', `/webhooks/${this.worker.user.id}/${int.token}/messages/@original`, toSend)
     }
