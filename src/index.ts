@@ -1,5 +1,3 @@
-import 'reflect-metadata'
-
 export * from './Symbols'
 
 export * from './decorators/Command'
