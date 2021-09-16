@@ -1,9 +1,9 @@
-import { APIApplicationCommandOption, ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types'
+import { APIApplicationCommandArgumentOptions, APIApplicationCommandOption, ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types'
 import { Symbols } from '../..'
 import { Decorators } from '../../utils/Decorators'
 
 export const CommandOption = Decorators.createParameterDecorator<[
-  data: APIApplicationCommandOption
+  data: APIApplicationCommandOption & Omit<APIApplicationCommandArgumentOptions, 'type'>
 ]>(([data], _cmd, base) => {
   if (!base[Symbols.interaction].options) base[Symbols.interaction].options = []
 
@@ -23,7 +23,7 @@ export const CommandOption = Decorators.createParameterDecorator<[
 })
 
 const CreateOption = (type: ApplicationCommandOptionType) => {
-  return (name: string, description: string, required?: boolean) => CommandOption({ type, name, description, required })
+  return (name: string, description: string, options?: Omit<APIApplicationCommandArgumentOptions, 'type' | 'name' | 'description'>) => CommandOption({ type, name, description, ...options })
 }
 
 export const Options = {

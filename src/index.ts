@@ -8,7 +8,7 @@ export * from './decorators/Run'
 
 export * from './decorators/middlewares/UserPerms'
 
-export * from './decorators/interactions/Option'
+export * from './decorators/interactions/Options'
 export * from './decorators/interactions/Thinks'
 
 export * from './decorators/parameters/Author'

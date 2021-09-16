@@ -2,8 +2,7 @@ import { Symbols } from '../Symbols'
 import { Decorators } from '../utils/Decorators'
 
 export const Alias = Decorators.createBaseDecorator<[
-  alias: string | string[],
-  thing: 'a'
+  alias: string | string[]
 ]>(([alias], command) => {
   const aliases = command[Symbols.aliases]
 

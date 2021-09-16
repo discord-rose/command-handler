@@ -1,4 +1,3 @@
-import { Worker } from 'jadl'
 import { Symbols } from '../Symbols'
 import { BaseSymbols } from '../utils/Decorators'
 
@@ -25,7 +24,7 @@ export class CommandFactory {
     return json
   }
 
-  constructor (commands: Array<new() => any>, worker?: Worker) {
+  constructor (commands: Array<new() => any>) {
     commands.forEach(Command => {
       const cmd = new Command()
 

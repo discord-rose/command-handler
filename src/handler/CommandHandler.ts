@@ -18,7 +18,7 @@ export class CommandHandler extends CommandFactory {
   constructor (private readonly worker: Worker, commands: Array<new() => any>, options: CommandHandlerOptions = {
 
   }) {
-    super(commands, worker)
+    super(commands)
 
     worker.on('INTERACTION_CREATE', (int) => {
       void this.handleInteraction(int)
