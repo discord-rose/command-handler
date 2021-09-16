@@ -5,20 +5,33 @@ import { CommandFactory } from '../handler/CommandFactory'
 import { formatMessage, MessageTypes } from '../utils/MessageFormatter'
 
 import { Symbols } from '../Symbols'
-import { ApplicationCommandType, InteractionResponseType, InteractionType, Snowflake } from 'discord-api-types'
+import { ApplicationCommandType, InteractionResponseType, InteractionType, MessageFlags, Snowflake } from 'discord-api-types'
 
 import { CommandError } from '../structures/CommandError'
 import { CommandInteraction } from '../types'
 
 export interface CommandHandlerOptions {
+  /**
+   * Guild to post all commands to (useful for testing)
+   */
   interactionGuild?: Snowflake
+  /**
+   * Whether or not to make errors ephemeral
+   * @default true
+   */
+  ephemeralError?: boolean
 }
 
 export class CommandHandler extends CommandFactory {
-  constructor (private readonly worker: Worker, commands: Array<new() => any>, options: CommandHandlerOptions = {
+  public options: CommandHandlerOptions
 
-  }) {
+  constructor (private readonly worker: Worker, commands: Array<new() => any>, options: CommandHandlerOptions = {}) {
     super(commands)
+
+    this.options = {
+      interactionGuild: options.interactionGuild,
+      ephemeralError: options.ephemeralError ?? true
+    }
 
     worker.on('INTERACTION_CREATE', (int) => {
       void this.handleInteraction(int)
@@ -61,6 +74,15 @@ export class CommandHandler extends CommandFactory {
       void this.handleRes?.(res, interaction as CommandInteraction)
     } catch (err: unknown) {
       if (err instanceof CommandError) {
+        if (this.options.ephemeralError) {
+          const formatted = formatMessage(err.response)
+          if (formatted.type === 'json') {
+            err.response = {
+              ...formatted.data,
+              flags: MessageFlags.Ephemeral
+            }
+          }
+        }
         void this.handleRes(err.response, interaction as CommandInteraction)
       } else if (err instanceof Error) {
         err.message += ` (In command ${baseCommand.name === Symbols.baseCommand ? command[Symbols.commandName] : baseCommand.name.toString()})`

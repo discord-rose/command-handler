@@ -1,5 +1,5 @@
 import { Embed } from '@jadl/embed'
-import { APIInteractionResponseCallbackData, RESTPostAPIChannelMessageJSONBody } from 'discord-api-types'
+import { APIInteractionResponseCallbackData } from 'discord-api-types'
 
 import FormData from 'form-data'
 import { FileBuilder } from '../structures/FileBuilder'
@@ -13,7 +13,7 @@ export interface FileMessage {
   extra?: NonBufferTypes
 }
 
-export type NonBufferTypes = RESTPostAPIChannelMessageJSONBody | StringifiedMessageTypes | Embed<any>
+export type NonBufferTypes = APIInteractionResponseCallbackData | StringifiedMessageTypes | Embed<any>
 
 export type MessageTypes = NonBufferTypes | FileBuilder
 

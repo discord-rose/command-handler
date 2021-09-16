@@ -1,4 +1,4 @@
-import { MessageTypes } from '@discord-rose/rest'
+import { MessageTypes } from '../utils/MessageFormatter'
 
 export class CommandError extends Error {
   name = 'CommandError'
