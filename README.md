@@ -126,7 +126,7 @@ export const UserLocked = Decorators.createCommandDecorator<[
   userId: string
 ]>(([userId], cmd) => {
   // Use the canRun array of functions
-  cmd.canRun.push((interaction, worker) => { // interaction being the raw object
+  cmd.canRun.push((interaction, handler) => { // interaction being the raw object
     // return a boolean of whether or not the author is the user locked
     return interaction.user.id === userId
   })
@@ -164,7 +164,7 @@ import { Decorators } from '@jadl/cmd'
 
 // you can add options the same was as was done above, however we don't need that here
 export const Db = Decorators.createParameterDecorator((options) => {
-  return async (interaction, worker) => { // this method is ran EVERYTIME a command is ran, and it's return value is what shows up on the parameter for your method
+  return async (interaction, { worker }) => { // this method is ran EVERYTIME a command is ran, and it's return value is what shows up on the parameter for your method
     return await worker.db.guildSettings.get(interaction.guild_id) // returns the guild's database
   }
 })

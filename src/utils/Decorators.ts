@@ -1,8 +1,8 @@
 import { Symbols } from '../Symbols'
 
 import type { RESTPostAPIChatInputApplicationCommandsJSONBody, Snowflake } from 'discord-api-types'
-import { Worker } from 'jadl'
 import { CommandInteraction } from '../types'
+import { CommandHandler } from '../handler/CommandHandler'
 
 export interface CommandMeta {
   canRun: Array<RunningFunction<boolean>>
@@ -12,8 +12,8 @@ export interface CommandMeta {
   method: string
 }
 
-type ParamResolver = (int: CommandInteraction, worker: Worker) => any
-type RunningFunction <R extends any> = (interaction: CommandInteraction, worker: Worker) => R | Promise<R>
+export type ParamResolver = (int: CommandInteraction, handler: CommandHandler) => any
+export type RunningFunction <R extends any> = (interaction: CommandInteraction, handler: CommandHandler) => R | Promise<R>
 
 const baseSymbols = {
   [Symbols.commandName]: '',

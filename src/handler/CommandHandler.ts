@@ -26,7 +26,7 @@ export interface CommandHandlerOptions {
 export class CommandHandler extends CommandFactory {
   public options: CommandHandlerOptions
 
-  constructor (private readonly worker: Worker, commands: Array<new() => any>, options: CommandHandlerOptions = {}) {
+  constructor (public readonly worker: Worker, commands: Array<new() => any>, options: CommandHandlerOptions = {}) {
     super(commands)
 
     this.options = {
@@ -75,11 +75,11 @@ export class CommandHandler extends CommandFactory {
 
     try {
       for (const runner of baseCommand.canRun) {
-        if (!await runner(interaction as CommandInteraction, this.worker)) return
+        if (!await runner(interaction as CommandInteraction, this)) return
       }
 
       for (const runner of baseCommand.onRun) {
-        await runner(interaction as CommandInteraction, this.worker)
+        await runner(interaction as CommandInteraction, this)
       }
 
       const res = await command[baseCommand.method]?.(interaction, this.worker)
