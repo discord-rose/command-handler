@@ -9,6 +9,7 @@ import { ApplicationCommandType, InteractionResponseType, InteractionType, Messa
 
 import { CommandError } from '../structures/CommandError'
 import { CommandInteraction } from '../types'
+import { SeekInteractions } from '../utils/InteractionChanges'
 
 export interface CommandHandlerOptions {
   /**
@@ -38,14 +39,22 @@ export class CommandHandler extends CommandFactory {
     })
 
     worker.on('READY', () => {
-      void this.worker.api.interactions.set(
-        this.commands.map(x => x[Symbols.interaction]),
-        this.worker.user.id,
-        options.interactionGuild
-      ).then(() => {
-        this.worker.log('Posted interactions')
-      })
+      if (this.worker.comms.id === '0') void this.updateInteractions()
     })
+  }
+
+  async updateInteractions (): Promise<void> {
+    const oldInteractions = await this.worker.api.interactions.get(this.worker.user.id, this.options.interactionGuild)
+
+    const changes = SeekInteractions(oldInteractions, this.commands.map(cmd => cmd[Symbols.interaction]))
+
+    await Promise.all<any>([
+      ...changes.added.map(async x => await this.worker.api.interactions.add(x, this.worker.user.id, this.options.interactionGuild)),
+      ...changes.updated.map(async x => await this.worker.api.interactions.add(x, this.worker.user.id, this.options.interactionGuild)),
+      ...changes.deleted.map(async x => await this.worker.api.interactions.delete(x.id, this.worker.user.id, this.options.interactionGuild))
+    ])
+
+    this.worker.log(`Added ${changes.added.length}, deleted ${changes.deleted.length}, and updated ${changes.updated.length} command interactions`)
   }
 
   async handleInteraction (interaction: DiscordEventMap['INTERACTION_CREATE']): Promise<void> {
