@@ -5,7 +5,7 @@ export class SimpleError extends CommandError {
   constructor (message: string) {
     super(new Embed()
       .color('Red')
-      .title('Error Occured')
+      .title('Error Occurred')
       .description(message)
     )
   }
