@@ -1,6 +1,6 @@
 import { Symbols } from '../Symbols'
 
-import type { RESTPostAPIChatInputApplicationCommandsJSONBody } from 'discord-api-types'
+import type { RESTPostAPIChatInputApplicationCommandsJSONBody, Snowflake } from 'discord-api-types'
 import { Worker } from 'jadl'
 import { CommandInteraction } from '../types'
 
@@ -20,6 +20,8 @@ const baseSymbols = {
   [Symbols.aliases]: [] as string[],
   [Symbols.interaction]: {} as RESTPostAPIChatInputApplicationCommandsJSONBody,
 
+  [Symbols.guild]: undefined as Snowflake|undefined,
+
   [Symbols.commands]: [] as CommandMeta[]
 }
 
@@ -33,11 +35,16 @@ export const Decorators = {
   createBaseDecorator: <O extends any[] = undefined[]> (handler: baseDecorator<O>): (...options: O) => ClassDecorator => {
     return function (...options): ClassDecorator {
       return function (target: any) {
-        [Symbols.commandName, Symbols.aliases, Symbols.interaction].forEach(symbol => {
-          if (target[symbol] === undefined) {
+        [Symbols.commandName, Symbols.aliases, Symbols.interaction, Symbols.guild].forEach(symbol => {
+          if (target[symbol] === undefined && baseSymbols[symbol]) {
             target[symbol] = new baseSymbols[symbol].constructor()
           } else if (!Object.hasOwnProperty.call(target, symbol)) {
-            target[symbol] = Object.assign(target[symbol], new baseSymbols[symbol].constructor())
+            if (baseSymbols[symbol]) {
+              target[symbol] = Object.assign(
+                target[symbol],
+                new baseSymbols[symbol].constructor()
+              )
+            }
           }
         })
 

@@ -8,10 +8,11 @@ export * from './decorators/middlewares/UserPerms'
 
 export * from './decorators/interactions/Options'
 export * from './decorators/interactions/Thinks'
+export * from './decorators/interactions/GuildInteraction'
 
 export * from './decorators/parameters/Author'
 export * from './decorators/parameters/Channel'
-export * from './decorators/parameters/GetWorker'
+export * from './decorators/parameters/Worker'
 export * from './decorators/parameters/Guild'
 export * from './decorators/parameters/Interaction'
 export * from './decorators/parameters/Me'

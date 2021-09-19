@@ -74,7 +74,7 @@ export class WaveCommand {
 
 Some helpful decorators:
 
-- `@GetWorker`, gets the main worker
+- `@Worker`, gets the main worker
 - `@Interaction` gets the interaction object
 - `@Guild` gets the guild
 - `@Author` gets the running user

@@ -45,12 +45,16 @@ export class CommandHandler extends CommandFactory {
 
   async updateInteractions (): Promise<void> {
     const oldInteractions = await this.worker.api.interactions.get(this.worker.user.id, this.options.interactionGuild)
+    const newInteractions = this.commands.map(cmd => cmd[Symbols.interaction])
 
-    const changes = SeekInteractions(oldInteractions, this.commands.map(cmd => cmd[Symbols.interaction]))
+    const changes = SeekInteractions(oldInteractions, newInteractions)
 
     await Promise.all<any>([
-      ...changes.added.map(async x => await this.worker.api.interactions.add(x, this.worker.user.id, this.options.interactionGuild)),
-      ...changes.updated.map(async x => await this.worker.api.interactions.add(x, this.worker.user.id, this.options.interactionGuild)),
+      ...[
+        ...changes.added,
+        ...newInteractions.filter(x => this.findCommand(x.name)?.[Symbols.guild])
+      ].map(async x => await this.worker.api.interactions.add(x, this.worker.user.id, this.options.interactionGuild ?? this.findCommand(x.name)?.[Symbols.guild])),
+      ...changes.updated.map(async x => await this.worker.api.interactions.add(x, this.worker.user.id, this.options.interactionGuild ?? this.findCommand(x.name)?.[Symbols.guild])),
       ...changes.deleted.map(async x => await this.worker.api.interactions.delete(x.id, this.worker.user.id, this.options.interactionGuild))
     ])
 
