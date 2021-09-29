@@ -6,6 +6,7 @@ export * from './decorators/Run'
 
 export * from './decorators/middlewares/UserPerms'
 
+export * from './decorators/interactions/SubCommand'
 export * from './decorators/interactions/Options'
 export * from './decorators/interactions/Thinks'
 export * from './decorators/interactions/GuildInteraction'

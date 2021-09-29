@@ -1,6 +1,6 @@
 import { Symbols } from '../Symbols'
 
-import type { RESTPostAPIChatInputApplicationCommandsJSONBody, Snowflake } from 'discord-api-types'
+import type { APIApplicationCommandOption, RESTPostAPIChatInputApplicationCommandsJSONBody, Snowflake } from 'discord-api-types'
 import { CommandInteraction } from '../types'
 import { CommandHandler } from '../handler/CommandHandler'
 
@@ -9,6 +9,7 @@ export interface CommandMeta {
   onRun: Array<RunningFunction<void>>
   name: string|symbol
   params: ParamResolver[]
+  interactionOptions?: APIApplicationCommandOption[]
   method: string
 }
 
@@ -80,9 +81,11 @@ export const Decorators = {
     return command
   },
 
-  createCommandDecorator: <O extends any[] = undefined[]> (running: commandDecorator<O>): (...options: O) => MethodDecorator => {
+  createCommandDecorator: <O extends any[] = undefined[]> (running: commandDecorator<O>, extension?: MethodDecorator): (...options: O) => MethodDecorator => {
     return function (...options) {
       return function (target: BaseSymbols, method: string, descriptor: TypedPropertyDescriptor<any>) {
+        if (extension) extension(target, method, descriptor)
+
         Decorators.setupCommandMeta(target)
 
         const command = Decorators.getCommandMeta(target, method)
