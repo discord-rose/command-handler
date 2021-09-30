@@ -5,7 +5,7 @@ import { CommandFactory } from '../handler/CommandFactory'
 import { formatMessage, MessageTypes } from '../utils/MessageFormatter'
 
 import { Symbols } from '../Symbols'
-import { ApplicationCommandType, InteractionResponseType, InteractionType, MessageFlags, Snowflake } from 'discord-api-types'
+import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType, InteractionType, MessageFlags, Snowflake } from 'discord-api-types'
 
 import { CommandError } from '../structures/CommandError'
 import { CommandInteraction } from '../types'
@@ -70,7 +70,11 @@ export class CommandHandler extends CommandFactory {
 
     // TODO sub commands
 
-    const baseCommand = command[Symbols.commands].find(x => x.name === Symbols.baseCommand)
+    const running = interaction.data.options && interaction.data.options[0].type === ApplicationCommandOptionType.Subcommand
+      ? interaction.data.options[0].name
+      : Symbols.baseCommand
+
+    const baseCommand = command[Symbols.commands].find(x => x.name === running)
     if (!baseCommand) return
 
     try {

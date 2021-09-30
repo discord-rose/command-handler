@@ -1,8 +1,14 @@
 import { Symbols } from '../Symbols'
 import { Decorators, ParamResolver } from '../utils/Decorators'
 
-export const Run = Decorators.createCommandDecorator((_, cmd, base, descriptor) => {
+export const Run = Decorators.createCommandDecorator<[
+  dontImply?: boolean
+]>(([dontImply], cmd, base, descriptor) => {
   cmd.name = Symbols.baseCommand
+
+  if (cmd.interactionOptions && !dontImply) {
+    base[Symbols.interaction].options = cmd.interactionOptions
+  }
 
   const method = descriptor.value!
 

@@ -1,18 +1,27 @@
-import { APIApplicationCommandArgumentOptions, APIApplicationCommandOption, ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types'
+import { APIApplicationCommandArgumentOptions, APIApplicationCommandInteractionDataOption, APIApplicationCommandOption, ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types'
 import { Symbols } from '../..'
 import { Decorators } from '../../utils/Decorators'
 
 export const CommandOption = Decorators.createParameterDecorator<[
   data: APIApplicationCommandOption & Omit<APIApplicationCommandArgumentOptions, 'type'>
-]>(([data], _cmd, base) => {
+]>(([data], cmd, base) => {
   if (!base[Symbols.interaction].options) base[Symbols.interaction].options = []
 
-  base[Symbols.interaction].options?.push(data)
+  if (!cmd.interactionOptions) cmd.interactionOptions = []
+  cmd.interactionOptions.push(data)
 
   return (int) => {
     if (int.data.type !== ApplicationCommandType.ChatInput) return
 
-    const val = int.data.options?.find(x => x.name === data.name)
+    let val: APIApplicationCommandInteractionDataOption | undefined
+    if (cmd.name !== Symbols.baseCommand) {
+      const subCommand = int.data.options?.find(x => x.name === cmd.name)
+      if (subCommand?.type === ApplicationCommandOptionType.Subcommand) {
+        val = subCommand.options.find(x => x.name === data.name)
+      }
+    } else {
+      val = int.data.options?.find(x => x.name === data.name)
+    }
 
     if (!val) return undefined
 
