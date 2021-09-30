@@ -7,8 +7,10 @@ import { FileBuilder } from '../structures/FileBuilder'
 type StringifiedMessageTypes = string | Function | bigint | number | symbol | undefined
 
 export interface FileMessage {
-  name: string
-  buffer: Buffer
+  files: Array<{
+    name: string
+    buffer: Buffer
+  }>
 
   extra?: NonBufferTypes
 }
@@ -53,7 +55,15 @@ export type FormattedResult = {
 export const formatMessage = (message: MessageTypes): FormattedResult => {
   if (message instanceof FileBuilder) {
     const form = new FormData()
-    form.append('file', message.data.buffer, message.data.name)
+    if (message.data.files.length < 2) {
+      form.append('file', message.data.files[0].buffer, message.data.files[0].name)
+    } else {
+      for (let i = 0; i < message.data.files.length; i++) {
+        const file = message.data.files[i]
+        form.append(`file${i}`, file.buffer, file.name)
+      }
+    }
+
     if (message.data.extra) form.append('payload_json', JSON.stringify(turnNonBuffer(message.data.extra)))
     return {
       data: form,
