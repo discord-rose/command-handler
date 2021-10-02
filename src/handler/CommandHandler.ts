@@ -86,7 +86,7 @@ export class CommandHandler extends CommandFactory {
         await runner(interaction as CommandInteraction, this)
       }
 
-      const res = await command[baseCommand.method]?.(interaction, this.worker)
+      const res = await command[baseCommand.method]?.(interaction, this)
 
       void this.handleRes?.(res, interaction as CommandInteraction)
     } catch (err: unknown) {
