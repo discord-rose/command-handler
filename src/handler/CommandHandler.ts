@@ -2,7 +2,7 @@ import { DiscordEventMap, Worker } from 'jadl'
 
 import { CommandFactory } from '../handler/CommandFactory'
 
-import { formatMessage, MessageTypes } from '../utils/MessageFormatter'
+import { formatMessage, MessageTypes, SendMessageType } from '../utils/MessageFormatter'
 
 import { Symbols } from '../Symbols'
 import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType, InteractionType, MessageFlags, Snowflake } from 'discord-api-types'
@@ -93,7 +93,7 @@ export class CommandHandler extends CommandFactory {
       if (err instanceof CommandError) {
         if (this.options.ephemeralError) {
           const formatted = formatMessage(err.response)
-          if (formatted.type === 'json') {
+          if (formatted.type === SendMessageType.JSON) {
             err.response = {
               ...formatted.data,
               flags: MessageFlags.Ephemeral
@@ -113,7 +113,7 @@ export class CommandHandler extends CommandFactory {
   async handleRes (res: MessageTypes, int: CommandInteraction): Promise<void> {
     const msg = formatMessage(res)
 
-    const toSend = msg.type === 'json'
+    const toSend = msg.type === SendMessageType.JSON
       ? {
           body: int.responded
             ? msg.data
@@ -128,7 +128,7 @@ export class CommandHandler extends CommandFactory {
           headers: msg.data.getHeaders()
         }
 
-    if (!int.responded && msg.type !== 'formdata') {
+    if (!int.responded && msg.type !== SendMessageType.FormData) {
       void this.worker.api.request('POST', `/interactions/${int.id}/${int.token}/callback`, toSend)
     } else {
       if (!int.responded) {

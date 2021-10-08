@@ -1,4 +1,15 @@
-import { FileMessage, NonBufferTypes } from '../utils/MessageFormatter'
+import { formatMessage, NonBufferTypes, SendMessageType } from '../utils/MessageFormatter'
+
+import FormData from 'form-data'
+
+export interface FileMessage {
+  files: Array<{
+    name: string
+    buffer: Buffer
+  }>
+
+  extra?: NonBufferTypes
+}
 
 /**
  * File builder for easily sending file(s) as a response
@@ -47,5 +58,26 @@ export class FileBuilder {
     this.data.extra = extra
 
     return this
+  }
+
+  toFormData (): FormData {
+    const form = new FormData()
+    if (this.data.files.length < 2) {
+      form.append('file', this.data.files[0].buffer, this.data.files[0].name)
+    } else {
+      for (let i = 0; i < this.data.files.length; i++) {
+        const file = this.data.files[i]
+        form.append(`file${i}`, file.buffer, file.name)
+      }
+    }
+
+    if (this.data.extra) {
+      const payload = formatMessage(this.data.extra)
+      if (payload.type === SendMessageType.FormData) throw new TypeError('FileBuilder extra data turned into FormData')
+
+      form.append('payload_json', JSON.stringify(payload.data))
+    }
+
+    return form
   }
 }

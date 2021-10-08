@@ -6,13 +6,9 @@ import { FileBuilder } from '../structures/FileBuilder'
 
 type StringifiedMessageTypes = string | Function | bigint | number | symbol | undefined
 
-export interface FileMessage {
-  files: Array<{
-    name: string
-    buffer: Buffer
-  }>
-
-  extra?: NonBufferTypes
+export enum SendMessageType {
+  JSON,
+  FormData
 }
 
 export type NonBufferTypes = APIInteractionResponseCallbackData | StringifiedMessageTypes | Embed<any>
@@ -46,33 +42,22 @@ const turnNonBuffer = (message: NonBufferTypes): APIInteractionResponseCallbackD
 
 export type FormattedResult = {
   data: FormData
-  type: 'formdata'
+  type: SendMessageType.FormData
 } | {
   data: Record<string, any>
-  type: 'json'
+  type: SendMessageType.JSON
 }
 
 export const formatMessage = (message: MessageTypes): FormattedResult => {
   if (message instanceof FileBuilder) {
-    const form = new FormData()
-    if (message.data.files.length < 2) {
-      form.append('file', message.data.files[0].buffer, message.data.files[0].name)
-    } else {
-      for (let i = 0; i < message.data.files.length; i++) {
-        const file = message.data.files[i]
-        form.append(`file${i}`, file.buffer, file.name)
-      }
-    }
-
-    if (message.data.extra) form.append('payload_json', JSON.stringify(turnNonBuffer(message.data.extra)))
     return {
-      data: form,
-      type: 'formdata'
+      data: message.toFormData(),
+      type: SendMessageType.FormData
     }
   }
 
   return {
     data: turnNonBuffer(message),
-    type: 'json'
+    type: SendMessageType.JSON
   }
 }
