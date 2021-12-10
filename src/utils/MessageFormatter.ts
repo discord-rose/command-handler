@@ -26,7 +26,7 @@ const isStringified = (val: any): val is StringifiedMessageTypes => {
   return ['bigint', 'function', 'number', 'string', 'symbol', 'undefined'].includes(typeof val)
 }
 
-const turnNonBuffer = (message: NonBufferTypes): APIInteractionResponseCallbackData => {
+export const turnNonBuffer = (message: NonBufferTypes): APIInteractionResponseCallbackData => {
   if (message instanceof Embed) {
     message = {
       embeds: [message.render()]
@@ -40,8 +40,8 @@ const turnNonBuffer = (message: NonBufferTypes): APIInteractionResponseCallbackD
   return message
 }
 
-export type FormattedResult = {
-  data: FormData
+export type FormattedResult <CreateFormData = true> = {
+  data: CreateFormData extends true ? FormData : FileBuilder
   type: SendMessageType.FormData
 } | {
   data: Record<string, any>
@@ -60,4 +60,15 @@ export const formatMessage = (message: MessageTypes): FormattedResult => {
     data: turnNonBuffer(message),
     type: SendMessageType.JSON
   }
+}
+
+export const internalFormatMessage = (message: MessageTypes): FormattedResult<false> => {
+  if (message instanceof FileBuilder) {
+    return {
+      data: message,
+      type: SendMessageType.FormData
+    }
+  }
+
+  return formatMessage(message) as any
 }

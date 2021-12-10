@@ -45,6 +45,6 @@
     "@discord-rose/rest": "^1.0.0",
     "@jadl/embed": "0.0.3",
     "form-data": "^4.0.0",
-    "jadl": "0.0.10"
+    "jadl": "^0.1.0"
   }
 }

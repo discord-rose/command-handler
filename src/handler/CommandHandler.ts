@@ -2,14 +2,15 @@ import { DiscordEventMap, Worker } from 'jadl'
 
 import { CommandFactory } from '../handler/CommandFactory'
 
-import { formatMessage, MessageTypes, SendMessageType } from '../utils/MessageFormatter'
+import { formatMessage, internalFormatMessage, MessageTypes, SendMessageType, turnNonBuffer } from '../utils/MessageFormatter'
 
 import { Symbols } from '../Symbols'
-import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType, InteractionType, MessageFlags, Snowflake } from 'discord-api-types'
+import { APIApplicationCommand, ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType, InteractionType, MessageFlags, Snowflake } from 'discord-api-types'
 
 import { CommandError } from '../structures/CommandError'
 import { CommandInteraction } from '../types'
 import { SeekInteractions } from '../utils/InteractionChanges'
+import { RequestData } from '@discordjs/rest'
 
 export interface CommandHandlerOptions {
   /**
@@ -43,8 +44,13 @@ export class CommandHandler extends CommandFactory {
     })
   }
 
+  private formCommandEndpoint (guildId?: Snowflake, interactionId?: Snowflake): `/${string}` {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    return `/applications/${this.worker.user.id}/${this.options.interactionGuild ?? guildId ? `/guilds/${this.options.interactionGuild ?? guildId}/` : ''}commands${interactionId ? `/${interactionId}` : ''}`
+  }
+
   async updateInteractions (): Promise<void> {
-    const oldInteractions = await this.worker.api.interactions.get(this.worker.user.id, this.options.interactionGuild)
+    const oldInteractions = await this.worker.api.get(this.formCommandEndpoint()) as APIApplicationCommand[]
     const newInteractions = this.commands.map(cmd => cmd[Symbols.interaction])
 
     const changes = SeekInteractions(oldInteractions, newInteractions)
@@ -53,9 +59,17 @@ export class CommandHandler extends CommandFactory {
       ...[
         ...changes.added,
         ...newInteractions.filter(x => this.findCommand(x.name)?.[Symbols.guild])
-      ].map(async x => await this.worker.api.interactions.add(x, this.worker.user.id, this.options.interactionGuild ?? this.findCommand(x.name)?.[Symbols.guild])),
-      ...changes.updated.map(async x => await this.worker.api.interactions.add(x, this.worker.user.id, this.options.interactionGuild ?? this.findCommand(x.name)?.[Symbols.guild])),
-      ...changes.deleted.map(async x => await this.worker.api.interactions.delete(x.id, this.worker.user.id, this.options.interactionGuild))
+      ].map(async x =>
+        await this.worker.api.post(this.formCommandEndpoint(this.findCommand(x.name)?.[Symbols.guild]), { body: x })
+      ),
+      ...changes.updated.map(async x =>
+        await this.worker.api.post(this.formCommandEndpoint(this.findCommand(x.name)?.[Symbols.guild]), {
+          body: x
+        })
+      ),
+      ...changes.deleted.map(async x =>
+        await this.worker.api.delete(this.formCommandEndpoint(undefined, x.id))
+      )
     ])
 
     this.worker.log(`Added ${changes.added.length}, deleted ${changes.deleted.length}, and updated ${changes.updated.length} command interactions`)
@@ -111,7 +125,7 @@ export class CommandHandler extends CommandFactory {
   }
 
   async handleRes (res: MessageTypes, int: CommandInteraction): Promise<void> {
-    const msg = formatMessage(res)
+    const msg = internalFormatMessage(res)
 
     const toSend = msg.type === SendMessageType.JSON
       ? {
@@ -123,20 +137,19 @@ export class CommandHandler extends CommandFactory {
               }
         }
       : {
-          body: msg.data,
-          parser: (_) => _,
-          headers: msg.data.getHeaders()
-        }
+          body: turnNonBuffer(msg.data.data.extra),
+          attachments: msg.data.data.files.map(x => ({ fileName: x.name, rawBuffer: x.buffer }))
+        } as RequestData
 
     if (!int.responded && msg.type !== SendMessageType.FormData) {
-      void this.worker.api.request('POST', `/interactions/${int.id}/${int.token}/callback`, toSend)
+      void this.worker.api.post(`/interactions/${int.id}/${int.token}/callback`, toSend)
     } else {
       if (!int.responded) {
-        await this.worker.api.interactions.callback(int.id, int.token, { type: InteractionResponseType.DeferredChannelMessageWithSource })
+        await this.worker.api.post(`/interactions/${int.id}/${int.token}/callback`, { body: { type: InteractionResponseType.DeferredChannelMessageWithSource } })
       }
 
       int.responded = true
-      void this.worker.api.request('PATCH', `/webhooks/${this.worker.user.id}/${int.token}/messages/@original`, toSend)
+      void this.worker.api.patch(`/webhooks/${this.worker.user.id}/${int.token}/messages/@original`, toSend)
     }
   }
 }

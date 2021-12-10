@@ -25,4 +25,11 @@ export * from './handler/CommandHandler'
 export * from './structures/CommandError'
 export * from './structures/FileBuilder'
 
-export * from './utils/MessageFormatter'
+export {
+  FormattedResult,
+  NonBufferTypes,
+  SendMessageType,
+  formatMessage,
+  MessageTypes,
+  resolveString
+} from './utils/MessageFormatter'
