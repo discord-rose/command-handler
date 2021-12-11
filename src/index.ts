@@ -33,3 +33,5 @@ export {
   MessageTypes,
   resolveString
 } from './utils/MessageFormatter'
+
+export * from './utils/EphemeralEmbed'

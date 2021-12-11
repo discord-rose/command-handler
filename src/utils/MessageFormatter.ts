@@ -1,8 +1,9 @@
 import { Embed } from '@jadl/embed'
-import { APIInteractionResponseCallbackData } from 'discord-api-types'
+import { APIInteractionResponseCallbackData, MessageFlags } from 'discord-api-types'
 
 import FormData from 'form-data'
 import { FileBuilder } from '../structures/FileBuilder'
+import { EphemeralEmbed } from './EphemeralEmbed'
 
 type StringifiedMessageTypes = string | Function | bigint | number | symbol | undefined
 
@@ -11,7 +12,7 @@ export enum SendMessageType {
   FormData
 }
 
-export type NonBufferTypes = APIInteractionResponseCallbackData | StringifiedMessageTypes | Embed<any>
+export type NonBufferTypes = APIInteractionResponseCallbackData | StringifiedMessageTypes | Embed<any> | EphemeralEmbed
 
 export type MessageTypes = NonBufferTypes | FileBuilder
 
@@ -28,11 +29,12 @@ const isStringified = (val: any): val is StringifiedMessageTypes => {
 
 export const turnNonBuffer = (message: NonBufferTypes): APIInteractionResponseCallbackData => {
   if (message instanceof Embed) {
-    message = {
-      embeds: [message.render()]
+    return {
+      embeds: [message.render()],
+      flags: message instanceof EphemeralEmbed ? MessageFlags.Ephemeral : 0
     }
   } else if (isStringified(message)) {
-    message = {
+    return {
       content: resolveString(message)
     }
   }
