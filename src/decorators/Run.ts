@@ -12,11 +12,12 @@ export const Run = Decorators.createCommandDecorator<[
 
   const method = descriptor.value!
 
-  descriptor.value = function (int, handler) {
+  descriptor.value = async function (int, handler) {
     const args = [int, handler]
-    cmd.params.forEach((param, i) => {
-      args[i] = param(int, handler)
-    })
+
+    for (let i = 0; i < cmd.params.length; i++) {
+      args[i] = await cmd.params[i](int, handler)
+    }
 
     return method.bind(this)(...args)
   } as ParamResolver
