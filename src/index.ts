@@ -35,3 +35,4 @@ export {
 } from './utils/MessageFormatter'
 
 export * from './utils/EphemeralEmbed'
+export * from './utils/Decorators'
