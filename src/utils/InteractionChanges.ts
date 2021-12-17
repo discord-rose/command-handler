@@ -65,7 +65,6 @@ const OptionsChanged = (
         oldOpt.description !== newOpt.description ||
         oldOpt.type !== newOpt.type ||
         (oldOpt.required ?? false) !== (newOpt.required ?? false) ||
-        oldOpt.default !== newOpt.default ||
         OptionsChanged(
           'options' in oldOpt ? oldOpt.options : undefined,
           'options' in newOpt ? newOpt.options : undefined
