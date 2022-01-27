@@ -18,6 +18,7 @@ export * from './decorators/parameters/Guild'
 export * from './decorators/parameters/Interaction'
 export * from './decorators/parameters/Me'
 export * from './decorators/parameters/Member'
+export * from './decorators/parameters/Targets'
 
 export * from './handler/CommandFactory'
 export * from './handler/CommandHandler'

@@ -1,6 +1,6 @@
 import { Symbols } from '../Symbols'
 
-import type { APIApplicationCommandOption, RESTPostAPIChatInputApplicationCommandsJSONBody, Snowflake } from 'discord-api-types'
+import type { APIApplicationCommandOption, RESTPostAPIApplicationCommandsJSONBody, Snowflake } from 'discord-api-types'
 import { CommandInteraction } from '../types'
 import { CommandHandler } from '../handler/CommandHandler'
 
@@ -19,7 +19,7 @@ export type RunningFunction <R extends any> = (interaction: CommandInteraction, 
 const baseSymbols = {
   [Symbols.commandName]: '',
   [Symbols.aliases]: [] as string[],
-  [Symbols.interaction]: {} as RESTPostAPIChatInputApplicationCommandsJSONBody,
+  [Symbols.interaction]: {} as RESTPostAPIApplicationCommandsJSONBody,
 
   [Symbols.guild]: undefined as Snowflake|undefined,
 
@@ -61,7 +61,7 @@ export const Decorators = {
       target[Symbols.commands] = [...target[Symbols.commands]]
     }
 
-    if (!target[Symbols.interaction]) target[Symbols.interaction] = { name: 'null', description: 'null' }
+    if (!target[Symbols.interaction]) target[Symbols.interaction] = { name: 'null' } as any
   },
 
   getCommandMeta (target: BaseSymbols, method: string) {

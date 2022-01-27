@@ -1,12 +1,21 @@
+import { ApplicationCommandType } from 'discord-api-types'
 import { Symbols } from '../Symbols'
 import { Decorators } from '../utils/Decorators'
 
 export const Command = Decorators.createBaseDecorator<[
   name: string,
-  description?: string
-]>(([name, description], command) => {
+  description?: string,
+  type?: ApplicationCommandType
+]>(([name, description, type], command) => {
   command[Symbols.commandName] = name
 
-  command[Symbols.interaction].name = name
-  command[Symbols.interaction].description = description ?? 'Missing Description'
+  const interaction = command[Symbols.interaction]
+
+  interaction.name = name
+  interaction.type = type ?? ApplicationCommandType.ChatInput
+
+  console.log(interaction)
+  if (interaction.type === ApplicationCommandType.ChatInput) {
+    interaction.description = description ?? 'Missing Description'
+  }
 })

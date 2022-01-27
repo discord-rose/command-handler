@@ -1,11 +1,11 @@
-import { DiscordEventMap, Worker } from 'jadl'
+import { Worker } from 'jadl'
 
 import { CommandFactory } from '../handler/CommandFactory'
 
 import { formatMessage, internalFormatMessage, MessageTypes, SendMessageType, turnNonBuffer } from '../utils/MessageFormatter'
 
 import { Symbols } from '../Symbols'
-import { APIApplicationCommand, ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType, InteractionType, MessageFlags, Snowflake } from 'discord-api-types'
+import { APIApplicationCommand, ApplicationCommandOptionType, ApplicationCommandType, GatewayInteractionCreateDispatchData, InteractionResponseType, InteractionType, MessageFlags, Snowflake } from 'discord-api-types'
 
 import { CommandError } from '../structures/CommandError'
 import { CommandInteraction } from '../types'
@@ -27,7 +27,7 @@ export interface CommandHandlerOptions {
 export class CommandHandler extends CommandFactory {
   public options: CommandHandlerOptions
 
-  constructor (public readonly worker: Worker, commands: Array<new() => any>, options: CommandHandlerOptions = {}) {
+  constructor (public readonly worker: Worker, commands: Array<new () => any>, options: CommandHandlerOptions = {}) {
     super(commands)
 
     this.options = {
@@ -36,7 +36,7 @@ export class CommandHandler extends CommandFactory {
     }
 
     worker.on('INTERACTION_CREATE', (int) => {
-      void this.handleInteraction(int)
+      void this.handleInteraction(int as any)
     })
 
     worker.on('READY', () => {
@@ -54,6 +54,7 @@ export class CommandHandler extends CommandFactory {
     const newInteractions = this.commands.map(cmd => cmd[Symbols.interaction])
 
     const changes = SeekInteractions(oldInteractions, newInteractions)
+    console.log(JSON.stringify(changes, null, 4))
 
     await Promise.all<any>([
       ...[
@@ -75,17 +76,25 @@ export class CommandHandler extends CommandFactory {
     this.worker.log(`Added ${changes.added.length}, deleted ${changes.deleted.length}, and updated ${changes.updated.length} command interactions`)
   }
 
-  async handleInteraction (interaction: DiscordEventMap['INTERACTION_CREATE']): Promise<void> {
-    if (interaction.type !== InteractionType.ApplicationCommand) return
-    if (interaction.data.type !== ApplicationCommandType.ChatInput) return
+  async handleInteraction (_interaction: GatewayInteractionCreateDispatchData): Promise<void> {
+    if (_interaction.type !== InteractionType.ApplicationCommand) return
+    if (!_interaction.data || (_interaction.data.type !== ApplicationCommandType.ChatInput && _interaction.data.type !== ApplicationCommandType.User &&
+      _interaction.data.type !== ApplicationCommandType.Message)) return
 
-    const command = this.findCommand(interaction.data.name)
+    const command = this.findCommand(_interaction.data.name)
     if (!command) return
+
+    const interaction: CommandInteraction = {
+      ..._interaction,
+      responded: false
+    }
 
     // TODO sub commands
 
-    const running = interaction.data.options && interaction.data.options[0].type === ApplicationCommandOptionType.Subcommand
-      ? interaction.data.options[0].name
+    const running = interaction.data.type === ApplicationCommandType.ChatInput
+      ? (interaction.data.options && interaction.data.options[0].type === ApplicationCommandOptionType.Subcommand
+          ? interaction.data.options[0].name
+          : Symbols.baseCommand)
       : Symbols.baseCommand
 
     const baseCommand = command[Symbols.commands].find(x => x.name === running)
@@ -93,16 +102,16 @@ export class CommandHandler extends CommandFactory {
 
     try {
       for (const runner of baseCommand.canRun) {
-        if (!await runner(interaction as CommandInteraction, this)) return
+        if (!await runner(interaction, this)) return
       }
 
       for (const runner of baseCommand.onRun) {
-        await runner(interaction as CommandInteraction, this)
+        await runner(interaction, this)
       }
 
       const res = await command[baseCommand.method]?.(interaction, this)
 
-      void this.handleRes?.(res, interaction as CommandInteraction)
+      void this.handleRes?.(res, interaction)
     } catch (err: unknown) {
       if (err instanceof CommandError) {
         if (this.options.ephemeralError) {
@@ -114,7 +123,7 @@ export class CommandHandler extends CommandFactory {
             }
           }
         }
-        void this.handleRes(err.response, interaction as CommandInteraction)
+        void this.handleRes(err.response, interaction)
       } else if (err instanceof Error) {
         err.message += ` (In command ${baseCommand.name === Symbols.baseCommand ? command[Symbols.commandName] : baseCommand.name.toString()})`
         console.error(err)

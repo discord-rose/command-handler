@@ -1,16 +1,16 @@
-import { RESTPostAPIChatInputApplicationCommandsJSONBody, RESTGetAPIApplicationCommandResult, APIApplicationCommandOption, Snowflake, APIApplicationCommandOptionChoice } from 'discord-api-types'
+import { RESTPostAPIApplicationCommandsJSONBody, RESTGetAPIApplicationCommandResult, APIApplicationCommandOption, Snowflake, APIApplicationCommandOptionChoice } from 'discord-api-types'
 
 export interface InteractionChanges {
-  added: RESTPostAPIChatInputApplicationCommandsJSONBody[]
+  added: RESTPostAPIApplicationCommandsJSONBody[]
 
-  updated: Array<RESTPostAPIChatInputApplicationCommandsJSONBody & { id: Snowflake }>
+  updated: Array<RESTPostAPIApplicationCommandsJSONBody & { id: Snowflake }>
 
   deleted: RESTGetAPIApplicationCommandResult[]
 }
 
 export const SeekInteractions = (
   oldInteractions: RESTGetAPIApplicationCommandResult[],
-  newInteractions: RESTPostAPIChatInputApplicationCommandsJSONBody[]
+  newInteractions: RESTPostAPIApplicationCommandsJSONBody[]
 ): InteractionChanges => {
   const interactions: InteractionChanges = {
     added: [],
@@ -34,7 +34,7 @@ export const SeekInteractions = (
     const changed =
       (oldInteraction.default_permission ?? true) !== (newInteraction.default_permission ?? true) ||
       oldInteraction.name !== newInteraction.name ||
-      oldInteraction.description !== newInteraction.description ||
+      ('description' in oldInteraction && oldInteraction.description) !== ('description' in newInteraction && newInteraction.description) ||
       OptionsChanged(oldInteraction.options, newInteraction.options)
 
     if (changed) {

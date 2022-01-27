@@ -1,4 +1,4 @@
-import { APIApplicationCommandSubCommandOptions, ApplicationCommandOptionType } from 'discord-api-types'
+import { ApplicationCommandOptionType } from 'discord-api-types'
 import { Symbols } from '../../Symbols'
 import { Decorators } from '../../utils/Decorators'
 import { Run } from '../Run'
@@ -14,6 +14,6 @@ export const SubCommand = Decorators.createCommandDecorator<[
   })
 
   if (cmd.interactionOptions) {
-    (base[Symbols.interaction].options![0] as APIApplicationCommandSubCommandOptions).options = cmd.interactionOptions
+    (base[Symbols.interaction].options![0] as any).options = cmd.interactionOptions
   }
 }, Run(true))

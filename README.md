@@ -54,18 +54,19 @@ Many of them exist and allow for adding and using interaction options, or just a
 e.g let's add a user via the `Options.User` decorator. This will create a Discord interaction user option
 
 ```ts
-import { Command, Options } from '@jadl/cmd'
+import { Command, Run, Worker, Author } from '@jadl/cmd'
 import { Embed } from '@jadl/embed' // optional, but used for embeds!
 
-@Command('wave', 'Wave at someone!')
-export class WaveCommand {
+@Command('hello', 'Say hello!')
+export class HelloCommand {
   @Run()
-  wave (
-    @Options.User('user', 'User to wave at') userId: Snowflake // creates an option accepting type user
+  hello (
+    @Worker() worker: Bot, // creates a paramater that is your worker
+    @Author() author: APIUser // gets the user who sent the command
   ) {
     // you can now use this parameter as it's actual value! making it super easy to do what you need to do
     return new Embed()
-      .description(`Hey <@${userId}>! Someone waved at you`)
+      .description(`Hey <@${author.id}>! Thanks for saying hi! My name is ${worker.user.username}!`)
   }
 }
 
@@ -79,8 +80,61 @@ Some helpful decorators:
 - `@Guild` gets the guild
 - `@Author` gets the running user
 - `@Member` gets the running member
+- `@Me` gets the worker's member in this guild
 
 (many more to come) // WIP
+
+### Creating options
+
+The `@Options.[]` decorator is used to apply options to a command. For example `@Options.String('name', 'description', { options })`
+
+e.g let's add a user via the `Options.User` decorator. This will create a Discord interaction user option
+
+```ts
+import { Command, Run, Options } from '@jadl/cmd'
+import { Embed } from '@jadl/embed'
+
+@Command('wave', 'Wave at someone!')
+export class WaveCommand {
+  @Run()
+  wave (
+    @Options.User('user', 'User to wave at', {
+      required: true
+    }) userId: Snowflake // creates an option accepting type user
+  ) {
+    // you can now use this parameter as it's actual value! making it super easy to do what you need to do
+    return new Embed()
+      .description(`Hey <@${userId}>! Someone waved at you`)
+  }
+}
+```
+
+### Targets & message/user commands
+
+You can create a user or message command by passing the type of command you'd like to the `@Command()` 3rd parameter
+
+And then you can use the `@Targets` decorator as a value for those targets. Be careful to make sure to use the correct target for your command
+
+e.g lets make our wave command a user command!
+
+```ts
+import { Command, Run, Targets, Author } from '@jadl/cmd'
+import { Embed } from '@jadl/embed'
+
+import { ApplicationCommandType } from 'discord-api-types'
+
+@Command('Wave at user', undefined, ApplicationCommandType.User)
+export class WaveCommand {
+  @Run()
+  wave (
+    @Targets.User() user: APIUser, // gets the user who the command was ran ON
+    @Author() author: APIUser // gets the user who the command was ran FROM
+  ) {
+    return new Embed()
+      .description(`Hey <@${user.id}>! <@${author.id}> waved at you!`)
+  }
+}
+```
 
 ### Middleware / interceptor decorators
 
