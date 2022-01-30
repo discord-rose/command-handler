@@ -14,7 +14,6 @@ export const Command = Decorators.createBaseDecorator<[
   interaction.name = name
   interaction.type = type ?? ApplicationCommandType.ChatInput
 
-  console.log(interaction)
   if (interaction.type === ApplicationCommandType.ChatInput) {
     interaction.description = description ?? 'Missing Description'
   }
