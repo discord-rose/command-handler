@@ -54,7 +54,6 @@ export class CommandHandler extends CommandFactory {
     const newInteractions = this.commands.map(cmd => cmd[Symbols.interaction])
 
     const changes = SeekInteractions(oldInteractions, newInteractions)
-    console.log(JSON.stringify(changes, null, 4))
 
     await Promise.all<any>([
       ...[
