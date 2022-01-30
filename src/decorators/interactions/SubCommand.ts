@@ -14,6 +14,6 @@ export const SubCommand = Decorators.createCommandDecorator<[
   })
 
   if (cmd.interactionOptions) {
-    (base[Symbols.interaction].options![0] as any).options = cmd.interactionOptions
+    (base[Symbols.interaction].options!.find(x => x.name === name) as any).options = cmd.interactionOptions
   }
 }, Run(true))
