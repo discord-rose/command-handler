@@ -1,6 +1,6 @@
 {
   "name": "@jadl/cmd",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A command handler for JADL",
   "main": "dist/index.js",
   "scripts": {
