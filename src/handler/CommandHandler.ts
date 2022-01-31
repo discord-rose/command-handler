@@ -110,7 +110,7 @@ export class CommandHandler extends CommandFactory {
 
       const res = await command[baseCommand.method]?.(interaction, this)
 
-      void this.handleRes?.(res, interaction)
+      await this.handleRes?.(res, interaction)
     } catch (err: unknown) {
       if (err instanceof CommandError) {
         if (this.options.ephemeralError) {
@@ -122,7 +122,9 @@ export class CommandHandler extends CommandFactory {
             }
           }
         }
-        void this.handleRes(err.response, interaction)
+        void this.handleRes(err.response, interaction).catch((err) => {
+          console.error(err)
+        })
       } else if (err instanceof Error) {
         err.message += ` (In command ${baseCommand.name === Symbols.baseCommand ? command[Symbols.commandName] : baseCommand.name.toString()})`
         console.error(err)
@@ -150,14 +152,14 @@ export class CommandHandler extends CommandFactory {
         } as RequestData
 
     if (!int.responded && msg.type !== SendMessageType.FormData) {
-      void this.worker.api.post(`/interactions/${int.id}/${int.token}/callback`, toSend)
+      await this.worker.api.post(`/interactions/${int.id}/${int.token}/callback`, toSend)
     } else {
       if (!int.responded) {
         await this.worker.api.post(`/interactions/${int.id}/${int.token}/callback`, { body: { type: InteractionResponseType.DeferredChannelMessageWithSource } })
       }
 
       int.responded = true
-      void this.worker.api.patch(`/webhooks/${this.worker.user.id}/${int.token}/messages/@original`, toSend)
+      await this.worker.api.patch(`/webhooks/${this.worker.user.id}/${int.token}/messages/@original`, toSend)
     }
   }
 }
