@@ -100,11 +100,11 @@ export class WaveCommand {
   wave (
     @Options.User('user', 'User to wave at', {
       required: true
-    }) userId: Snowflake // creates an option accepting type user
+    }) user: APIUser // creates an option accepting type user
   ) {
     // you can now use this parameter as it's actual value! making it super easy to do what you need to do
     return new Embed()
-      .description(`Hey <@${userId}>! Someone waved at you`)
+      .description(`Hey <@${user.id}>! Someone waved at you`)
   }
 }
 ```
