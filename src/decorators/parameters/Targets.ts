@@ -1,6 +1,6 @@
 import { Decorators } from '../../utils/Decorators'
 
-import { ApplicationCommandType } from 'discord-api-types'
+import { ApplicationCommandType } from 'discord-api-types/v9'
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const createTargetDecorator = (prop: 'users' | 'members' | 'messages') => {

@@ -1,4 +1,4 @@
-import { RESTPostAPIApplicationCommandsJSONBody, RESTGetAPIApplicationCommandResult, APIApplicationCommandOption, Snowflake, APIApplicationCommandOptionChoice } from 'discord-api-types'
+import { RESTPostAPIApplicationCommandsJSONBody, RESTGetAPIApplicationCommandResult, APIApplicationCommandOption, Snowflake, APIApplicationCommandOptionChoice } from 'discord-api-types/v9'
 
 export interface InteractionChanges {
   added: RESTPostAPIApplicationCommandsJSONBody[]

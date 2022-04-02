@@ -1,6 +1,6 @@
 import { Symbols } from '../Symbols'
 
-import type { APIApplicationCommandOption, RESTPostAPIApplicationCommandsJSONBody, Snowflake } from 'discord-api-types'
+import type { APIApplicationCommandOption, RESTPostAPIApplicationCommandsJSONBody, Snowflake } from 'discord-api-types/v9'
 import { CommandInteraction } from '../types'
 import { CommandHandler } from '../handler/CommandHandler'
 

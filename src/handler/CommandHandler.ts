@@ -5,7 +5,7 @@ import { CommandFactory } from '../handler/CommandFactory'
 import { formatMessage, internalFormatMessage, MessageTypes, SendMessageType, turnNonBuffer } from '../utils/MessageFormatter'
 
 import { Symbols } from '../Symbols'
-import { APIApplicationCommand, ApplicationCommandOptionType, ApplicationCommandType, GatewayInteractionCreateDispatchData, InteractionResponseType, InteractionType, MessageFlags, Snowflake } from 'discord-api-types'
+import { APIApplicationCommand, ApplicationCommandOptionType, ApplicationCommandType, GatewayInteractionCreateDispatchData, InteractionResponseType, InteractionType, MessageFlags, Snowflake } from 'discord-api-types/v9'
 
 import { CommandError } from '../structures/CommandError'
 import { CommandInteraction } from '../types'

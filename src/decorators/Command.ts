@@ -1,4 +1,4 @@
-import { ApplicationCommandType } from 'discord-api-types'
+import { ApplicationCommandType } from 'discord-api-types/v9'
 import { Symbols } from '../Symbols'
 import { Decorators } from '../utils/Decorators'
 

@@ -1,5 +1,5 @@
 import { Embed } from '@jadl/embed'
-import { APIInteractionResponseCallbackData, MessageFlags } from 'discord-api-types'
+import { APIInteractionResponseCallbackData, MessageFlags } from 'discord-api-types/v9'
 
 import FormData from 'form-data'
 import { FileBuilder } from '../structures/FileBuilder'

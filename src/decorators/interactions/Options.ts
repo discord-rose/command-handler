@@ -1,4 +1,4 @@
-import { APIApplicationCommandInteractionDataOption, APIApplicationCommandOption, APIGuildMember, ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types'
+import { APIApplicationCommandInteractionDataOption, APIApplicationCommandOption, APIGuildMember, ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types/v9'
 import { Symbols } from '../..'
 import { APIApplicationCommandArgumentOptions, CommandInteraction } from '../../types'
 import { Decorators } from '../../utils/Decorators'

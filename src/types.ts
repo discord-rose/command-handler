@@ -1,4 +1,4 @@
-import { APIApplicationCommandInteraction, APIApplicationCommandOptionChoice, ApplicationCommandOptionType } from 'discord-api-types'
+import { APIApplicationCommandInteraction, APIApplicationCommandOptionChoice, ApplicationCommandOptionType } from 'discord-api-types/v9'
 
 export type CommandInteraction = APIApplicationCommandInteraction & {
   responded?: boolean

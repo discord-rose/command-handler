@@ -121,7 +121,7 @@ e.g lets make our wave command a user command!
 import { Command, Run, Targets, Author } from '@jadl/cmd'
 import { Embed } from '@jadl/embed'
 
-import { ApplicationCommandType } from 'discord-api-types'
+import { ApplicationCommandType } from 'discord-api-types/v9'
 
 @Command('Wave at user', undefined, ApplicationCommandType.User)
 export class WaveCommand {
