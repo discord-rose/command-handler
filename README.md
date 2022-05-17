@@ -109,6 +109,25 @@ export class WaveCommand {
 }
 ```
 
+### Extra command decorators
+
+#### Permissions
+
+For permissions v2 there is a `Permissions(permission)` decorator
+
+```ts
+import { Command, Permissions, Run } from '@jadl/cmd'
+
+@Command('admin', 'Only users with Manager Server can run this command')
+@Permissions('manageServer') // only Manage Server permissions (overrideable by permissions v2)
+export class AdminCommand {
+  @Run()
+  run () {
+    superSecretThing() // only people who are allowed to run the command in the server can do it
+  }
+}
+```
+
 ### Targets & message/user commands
 
 You can create a user or message command by passing the type of command you'd like to the `@Command()` 3rd parameter
