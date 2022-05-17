@@ -32,7 +32,7 @@ export const SeekInteractions = (
     if (!oldInteraction) return
 
     const changed =
-      (oldInteraction.default_permission ?? true) !== (newInteraction.default_permission ?? true) ||
+      oldInteraction.default_member_permissions !== newInteraction.default_member_permissions ||
       oldInteraction.name !== newInteraction.name ||
       ('description' in oldInteraction && oldInteraction.description) !== ('description' in newInteraction && newInteraction.description) ||
       OptionsChanged(oldInteraction.options, newInteraction.options)

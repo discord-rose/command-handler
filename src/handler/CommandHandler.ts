@@ -27,7 +27,7 @@ export interface CommandHandlerOptions {
 export class CommandHandler extends CommandFactory {
   public options: CommandHandlerOptions
 
-  constructor (public readonly worker: Worker, commands: Array<new () => any>, options: CommandHandlerOptions = {}) {
+  constructor(public readonly worker: Worker, commands: Array<new () => any>, options: CommandHandlerOptions = {}) {
     super(commands)
 
     this.options = {
@@ -44,12 +44,12 @@ export class CommandHandler extends CommandFactory {
     })
   }
 
-  private formCommandEndpoint (guildId?: Snowflake, interactionId?: Snowflake): `/${string}` {
+  private formCommandEndpoint(guildId?: Snowflake, interactionId?: Snowflake): `/${string}` {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return `/applications/${this.worker.user.id}/${this.options.interactionGuild ?? guildId ? `/guilds/${this.options.interactionGuild ?? guildId}/` : ''}commands${interactionId ? `/${interactionId}` : ''}`
   }
 
-  async updateInteractions (): Promise<void> {
+  async updateInteractions(): Promise<void> {
     const oldInteractions = await this.worker.api.get(this.formCommandEndpoint()) as APIApplicationCommand[]
     const newInteractions = this.commands.map(cmd => cmd[Symbols.interaction])
 
@@ -75,7 +75,7 @@ export class CommandHandler extends CommandFactory {
     this.worker.log(`Added ${changes.added.length}, deleted ${changes.deleted.length}, and updated ${changes.updated.length} command interactions`)
   }
 
-  async handleInteraction (_interaction: GatewayInteractionCreateDispatchData): Promise<void> {
+  async handleInteraction(_interaction: GatewayInteractionCreateDispatchData): Promise<void> {
     if (_interaction.type !== InteractionType.ApplicationCommand) return
     if (!_interaction.data || (_interaction.data.type !== ApplicationCommandType.ChatInput && _interaction.data.type !== ApplicationCommandType.User &&
       _interaction.data.type !== ApplicationCommandType.Message)) return
@@ -92,8 +92,8 @@ export class CommandHandler extends CommandFactory {
 
     const running = interaction.data.type === ApplicationCommandType.ChatInput
       ? (interaction.data.options && interaction.data.options[0].type === ApplicationCommandOptionType.Subcommand
-          ? interaction.data.options[0].name
-          : Symbols.baseCommand)
+        ? interaction.data.options[0].name
+        : Symbols.baseCommand)
       : Symbols.baseCommand
 
     const baseCommand = command[Symbols.commands].find(x => x.name === running)
@@ -134,22 +134,22 @@ export class CommandHandler extends CommandFactory {
     }
   }
 
-  async handleRes (res: MessageTypes, int: CommandInteraction): Promise<void> {
+  async handleRes(res: MessageTypes, int: CommandInteraction): Promise<void> {
     const msg = internalFormatMessage(res)
 
     const toSend = msg.type === SendMessageType.JSON
       ? {
-          body: int.responded
-            ? msg.data
-            : {
-                type: InteractionResponseType.ChannelMessageWithSource,
-                data: msg.data
-              }
-        }
+        body: int.responded
+          ? msg.data
+          : {
+            type: InteractionResponseType.ChannelMessageWithSource,
+            data: msg.data
+          }
+      }
       : {
-          body: turnNonBuffer(msg.data.data.extra),
-          attachments: msg.data.data.files.map(x => ({ fileName: x.name, rawBuffer: x.buffer }))
-        } as RequestData
+        body: turnNonBuffer(msg.data.data.extra),
+        attachments: msg.data.data.files.map(x => ({ fileName: x.name, rawBuffer: x.buffer }))
+      } as RequestData
 
     if (!int.responded && msg.type !== SendMessageType.FormData) {
       await this.worker.api.post(`/interactions/${int.id}/${int.token}/callback`, toSend)
