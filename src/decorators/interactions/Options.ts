@@ -15,7 +15,6 @@ export const CommandOption = Decorators.createParameterDecorator<CommandOptionOp
   cmd.interactionOptions.push(data)
 
   return (int) => {
-    console.log(int)
     if (int.data.type !== ApplicationCommandType.ChatInput) return
 
     let val: APIApplicationCommandInteractionDataOption | undefined
