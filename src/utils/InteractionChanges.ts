@@ -1,4 +1,10 @@
-import { RESTPostAPIApplicationCommandsJSONBody, RESTGetAPIApplicationCommandResult, APIApplicationCommandOption, Snowflake, APIApplicationCommandOptionChoice } from 'discord-api-types/v9'
+import {
+  RESTPostAPIApplicationCommandsJSONBody,
+  RESTGetAPIApplicationCommandResult,
+  APIApplicationCommandOption,
+  Snowflake,
+  APIApplicationCommandOptionChoice
+} from 'discord-api-types/v9'
 
 export interface InteractionChanges {
   added: RESTPostAPIApplicationCommandsJSONBody[]
@@ -18,23 +24,30 @@ export const SeekInteractions = (
     deleted: []
   }
 
-  const mutuals = newInteractions.filter(newInt => oldInteractions.some(oldInt => oldInt.name === newInt.name))
+  const mutuals = newInteractions.filter((newInt) =>
+    oldInteractions.some((oldInt) => oldInt.name === newInt.name)
+  )
 
-  oldInteractions.forEach(int => {
-    if (!mutuals.some(x => x.name === int.name)) interactions.deleted.push(int)
+  oldInteractions.forEach((int) => {
+    if (!mutuals.some((x) => x.name === int.name))
+      interactions.deleted.push(int)
   })
-  newInteractions.forEach(int => {
-    if (!mutuals.some(x => x.name === int.name)) interactions.added.push(int)
+  newInteractions.forEach((int) => {
+    if (!mutuals.some((x) => x.name === int.name)) interactions.added.push(int)
   })
 
-  mutuals.forEach(newInteraction => {
-    const oldInteraction = oldInteractions.find(x => x.name === newInteraction.name)
+  mutuals.forEach((newInteraction) => {
+    const oldInteraction = oldInteractions.find(
+      (x) => x.name === newInteraction.name
+    )
     if (!oldInteraction) return
 
     const changed =
-      oldInteraction.default_member_permissions !== newInteraction.default_member_permissions ||
+      oldInteraction.default_member_permissions !==
+        newInteraction.default_member_permissions ||
       oldInteraction.name !== newInteraction.name ||
-      ('description' in oldInteraction && oldInteraction.description) !== ('description' in newInteraction && newInteraction.description) ||
+      ('description' in oldInteraction && oldInteraction.description) !==
+        ('description' in newInteraction && newInteraction.description) ||
       OptionsChanged(oldInteraction.options, newInteraction.options)
 
     if (changed) {
@@ -91,8 +104,7 @@ const ChoicesChanged = (
       const newChoice = newChoices![i]
 
       return (
-        oldChoice.name !== newChoice.name ||
-        oldChoice.value !== newChoice.value
+        oldChoice.name !== newChoice.name || oldChoice.value !== newChoice.value
       )
     })
   )

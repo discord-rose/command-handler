@@ -2,9 +2,13 @@ import { PermissionUtils } from 'jadl'
 import { Symbols } from '../../Symbols'
 import { Decorators } from '../../utils/Decorators'
 
-export const Permissions = Decorators.createBaseDecorator<[
-  permissions: keyof typeof PermissionUtils['bits'] | Array<keyof typeof PermissionUtils['bits']>
-]>(([permissions], base) => {
+export const Permissions = Decorators.createBaseDecorator<
+  [
+    permissions:
+      | keyof typeof PermissionUtils['bits']
+      | Array<keyof typeof PermissionUtils['bits']>
+  ]
+>(([permissions], base) => {
   let bit = 0n
   if (Array.isArray(permissions)) {
     permissions.forEach((perm) => {

@@ -1,4 +1,8 @@
-import { APIApplicationCommandInteraction, APIApplicationCommandOptionChoice, ApplicationCommandOptionType } from 'discord-api-types/v9'
+import {
+  APIApplicationCommandInteraction,
+  APIApplicationCommandOptionChoice,
+  ApplicationCommandOptionType
+} from 'discord-api-types/v9'
 
 export type CommandInteraction = APIApplicationCommandInteraction & {
   responded?: boolean
@@ -6,11 +10,11 @@ export type CommandInteraction = APIApplicationCommandInteraction & {
 
 interface APIApplicationCommandOptionBase {
   type:
-  | ApplicationCommandOptionType.Boolean
-  | ApplicationCommandOptionType.User
-  | ApplicationCommandOptionType.Channel
-  | ApplicationCommandOptionType.Role
-  | ApplicationCommandOptionType.Mentionable
+    | ApplicationCommandOptionType.Boolean
+    | ApplicationCommandOptionType.User
+    | ApplicationCommandOptionType.Channel
+    | ApplicationCommandOptionType.Role
+    | ApplicationCommandOptionType.Mentionable
   name: string
   description: string
   default?: boolean
@@ -23,10 +27,11 @@ interface APIApplicationCommandOptionBase {
  * In contrast to `APIApplicationCommandSubCommandOptions`, these types cannot have an `options` array,
  * but they can have a `choices` one
  */
-export interface APIApplicationCommandArgumentOptions extends Omit<APIApplicationCommandOptionBase, 'type'> {
+export interface APIApplicationCommandArgumentOptions
+  extends Omit<APIApplicationCommandOptionBase, 'type'> {
   type:
-  | ApplicationCommandOptionType.String
-  | ApplicationCommandOptionType.Integer
-  | ApplicationCommandOptionType.Number
+    | ApplicationCommandOptionType.String
+    | ApplicationCommandOptionType.Integer
+    | ApplicationCommandOptionType.Number
   choices?: APIApplicationCommandOptionChoice[]
 }

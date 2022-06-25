@@ -1,42 +1,71 @@
 import { Symbols } from '../Symbols'
 
-import type { APIApplicationCommandOption, RESTPostAPIApplicationCommandsJSONBody, Snowflake } from 'discord-api-types/v9'
+import type {
+  APIApplicationCommandOption,
+  RESTPostAPIApplicationCommandsJSONBody,
+  Snowflake
+} from 'discord-api-types/v9'
 import { CommandInteraction } from '../types'
 import { CommandHandler } from '../handler/CommandHandler'
 
 export interface CommandMeta {
   canRun: Array<RunningFunction<boolean>>
   onRun: Array<RunningFunction<void>>
-  name: string|symbol
+  name: string | symbol
   params: ParamResolver[]
   interactionOptions?: APIApplicationCommandOption[]
   method: string
 }
 
-export type ParamResolver = (int: CommandInteraction, handler: CommandHandler) => any
-export type RunningFunction <R extends any> = (interaction: CommandInteraction, handler: CommandHandler) => R | Promise<R>
+export type ParamResolver = (
+  int: CommandInteraction,
+  handler: CommandHandler
+) => any
+export type RunningFunction<R extends any> = (
+  interaction: CommandInteraction,
+  handler: CommandHandler
+) => R | Promise<R>
 
 const baseSymbols = {
   [Symbols.commandName]: '',
   [Symbols.aliases]: [] as string[],
   [Symbols.interaction]: {} as RESTPostAPIApplicationCommandsJSONBody,
 
-  [Symbols.guild]: undefined as Snowflake|undefined,
+  [Symbols.guild]: undefined as Snowflake | undefined,
 
   [Symbols.commands]: [] as CommandMeta[]
 }
 
 export type BaseSymbols = typeof baseSymbols
 
-export type baseDecorator <O extends any> = (options: O, command: BaseSymbols) => void | Promise<void>
-export type commandDecorator <O extends any> = (options: O, command: CommandMeta, base: BaseSymbols, descriptor: TypedPropertyDescriptor<Function>) => void | Promise<void>
-export type parameterDecorator <O extends any> = (options: O, command: CommandMeta, base: BaseSymbols) => ParamResolver
+export type baseDecorator<O extends any> = (
+  options: O,
+  command: BaseSymbols
+) => void | Promise<void>
+export type commandDecorator<O extends any> = (
+  options: O,
+  command: CommandMeta,
+  base: BaseSymbols,
+  descriptor: TypedPropertyDescriptor<Function>
+) => void | Promise<void>
+export type parameterDecorator<O extends any> = (
+  options: O,
+  command: CommandMeta,
+  base: BaseSymbols
+) => ParamResolver
 
 export const Decorators = {
-  createBaseDecorator: <O extends any[] = undefined[]> (handler: baseDecorator<O>): (...options: O) => ClassDecorator => {
+  createBaseDecorator: <O extends any[] = undefined[]>(
+    handler: baseDecorator<O>
+  ): ((...options: O) => ClassDecorator) => {
     return function (...options): ClassDecorator {
       return function (target: any) {
-        [Symbols.commandName, Symbols.aliases, Symbols.interaction, Symbols.guild].forEach(symbol => {
+        ;[
+          Symbols.commandName,
+          Symbols.aliases,
+          Symbols.interaction,
+          Symbols.guild
+        ].forEach((symbol) => {
           if (target[symbol] === undefined && baseSymbols[symbol]) {
             target[symbol] = new baseSymbols[symbol].constructor()
           } else if (!Object.hasOwnProperty.call(target, symbol)) {
@@ -61,11 +90,12 @@ export const Decorators = {
       target[Symbols.commands] = [...target[Symbols.commands]]
     }
 
-    if (!target[Symbols.interaction]) target[Symbols.interaction] = { name: 'null' } as any
+    if (!target[Symbols.interaction])
+      target[Symbols.interaction] = { name: 'null' } as any
   },
 
-  getCommandMeta (target: BaseSymbols, method: string) {
-    let command = target[Symbols.commands].find(x => x.method === method)
+  getCommandMeta(target: BaseSymbols, method: string) {
+    let command = target[Symbols.commands].find((x) => x.method === method)
     if (!command) {
       command = {
         canRun: [],
@@ -81,9 +111,16 @@ export const Decorators = {
     return command
   },
 
-  createCommandDecorator: <O extends any[] = undefined[]> (running: commandDecorator<O>, extension?: MethodDecorator): (...options: O) => MethodDecorator => {
+  createCommandDecorator: <O extends any[] = undefined[]>(
+    running: commandDecorator<O>,
+    extension?: MethodDecorator
+  ): ((...options: O) => MethodDecorator) => {
     return function (...options) {
-      return function (target: BaseSymbols, method: string, descriptor: TypedPropertyDescriptor<any>) {
+      return function (
+        target: BaseSymbols,
+        method: string,
+        descriptor: TypedPropertyDescriptor<any>
+      ) {
         if (extension) extension(target, method, descriptor)
 
         Decorators.setupCommandMeta(target)
@@ -95,7 +132,9 @@ export const Decorators = {
     }
   },
 
-  createParameterDecorator: <O extends any[] = undefined[]> (paramHandler: parameterDecorator<O>): (...options: O) => ParameterDecorator => {
+  createParameterDecorator: <O extends any[] = undefined[]>(
+    paramHandler: parameterDecorator<O>
+  ): ((...options: O) => ParameterDecorator) => {
     return function (...options): ParameterDecorator {
       return function (target: BaseSymbols, method: string, index: number) {
         Decorators.setupCommandMeta(target)

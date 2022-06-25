@@ -1,22 +1,37 @@
 import { Embed } from '@jadl/embed'
-import { APIInteractionResponseCallbackData, MessageFlags } from 'discord-api-types/v9'
+import {
+  APIInteractionResponse,
+  APIInteractionResponseCallbackData,
+  MessageFlags
+} from 'discord-api-types/v9'
 
 import FormData from 'form-data'
 import { FileBuilder } from '../structures/FileBuilder'
 import { EphemeralEmbed } from './EphemeralEmbed'
 
-type StringifiedMessageTypes = string | Function | bigint | number | symbol | undefined
+type StringifiedMessageTypes =
+  | string
+  | Function
+  | bigint
+  | number
+  | symbol
+  | undefined
 
 export enum SendMessageType {
   JSON,
   FormData
 }
 
-export type NonBufferTypes = APIInteractionResponseCallbackData | StringifiedMessageTypes | Embed<any> | EphemeralEmbed
+export type NonBufferTypes =
+  | APIInteractionResponseCallbackData
+  | StringifiedMessageTypes
+  | Embed<any>
+  | EphemeralEmbed
+  | APIInteractionResponse
 
 export type MessageTypes = NonBufferTypes | FileBuilder
 
-export function resolveString (data: any): string {
+export function resolveString(data: any): string {
   if (typeof data === 'string') return data
   if (Array.isArray(data)) return data.join(', ')
 
@@ -24,10 +39,19 @@ export function resolveString (data: any): string {
 }
 
 const isStringified = (val: any): val is StringifiedMessageTypes => {
-  return ['bigint', 'function', 'number', 'string', 'symbol', 'undefined'].includes(typeof val)
+  return [
+    'bigint',
+    'function',
+    'number',
+    'string',
+    'symbol',
+    'undefined'
+  ].includes(typeof val)
 }
 
-export const turnNonBuffer = (message: NonBufferTypes): APIInteractionResponseCallbackData => {
+export const turnNonBuffer = (
+  message: NonBufferTypes
+): APIInteractionResponseCallbackData | APIInteractionResponse => {
   if (message instanceof Embed) {
     return {
       embeds: [message.render()],
@@ -42,13 +66,15 @@ export const turnNonBuffer = (message: NonBufferTypes): APIInteractionResponseCa
   return message
 }
 
-export type FormattedResult <CreateFormData = true> = {
-  data: CreateFormData extends true ? FormData : FileBuilder
-  type: SendMessageType.FormData
-} | {
-  data: Record<string, any>
-  type: SendMessageType.JSON
-}
+export type FormattedResult<CreateFormData = true> =
+  | {
+      data: CreateFormData extends true ? FormData : FileBuilder
+      type: SendMessageType.FormData
+    }
+  | {
+      data: Record<string, any>
+      type: SendMessageType.JSON
+    }
 
 export const formatMessage = (message: MessageTypes): FormattedResult => {
   if (message instanceof FileBuilder) {
@@ -64,7 +90,9 @@ export const formatMessage = (message: MessageTypes): FormattedResult => {
   }
 }
 
-export const internalFormatMessage = (message: MessageTypes): FormattedResult<false> => {
+export const internalFormatMessage = (
+  message: MessageTypes
+): FormattedResult<false> => {
   if (message instanceof FileBuilder) {
     return {
       data: message,

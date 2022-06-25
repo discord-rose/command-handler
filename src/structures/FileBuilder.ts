@@ -1,4 +1,8 @@
-import { formatMessage, NonBufferTypes, SendMessageType } from '../utils/MessageFormatter'
+import {
+  formatMessage,
+  NonBufferTypes,
+  SendMessageType
+} from '../utils/MessageFormatter'
 
 import FormData from 'form-data'
 
@@ -32,7 +36,7 @@ export class FileBuilder {
    * @param buffer Buffer of the file
    * @returns FileBuilder
    */
-  add (name: string, buffer: Buffer): this {
+  add(name: string, buffer: Buffer): this {
     this.data.files.push({ name, buffer })
 
     return this
@@ -43,8 +47,8 @@ export class FileBuilder {
    * @param name Name of file
    * @returns FileBuilder
    */
-  remove (name: string): this {
-    this.data.files = this.data.files.filter(x => x.name !== name)
+  remove(name: string): this {
+    this.data.files = this.data.files.filter((x) => x.name !== name)
 
     return this
   }
@@ -54,13 +58,13 @@ export class FileBuilder {
    * @param extra Extra message data
    * @returns FileBuilder
    */
-  extra (extra: NonBufferTypes): this {
+  extra(extra: NonBufferTypes): this {
     this.data.extra = extra
 
     return this
   }
 
-  toFormData (): FormData {
+  toFormData(): FormData {
     const form = new FormData()
     if (this.data.files.length < 2) {
       form.append('file', this.data.files[0].buffer, this.data.files[0].name)
@@ -73,7 +77,8 @@ export class FileBuilder {
 
     if (this.data.extra) {
       const payload = formatMessage(this.data.extra)
-      if (payload.type === SendMessageType.FormData) throw new TypeError('FileBuilder extra data turned into FormData')
+      if (payload.type === SendMessageType.FormData)
+        throw new TypeError('FileBuilder extra data turned into FormData')
 
       form.append('payload_json', JSON.stringify(payload.data))
     }
