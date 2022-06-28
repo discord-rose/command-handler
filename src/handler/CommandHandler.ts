@@ -143,8 +143,10 @@ export class CommandHandler extends CommandFactory {
     const running =
       interaction.data.type === ApplicationCommandType.ChatInput
         ? interaction.data.options &&
-          interaction.data.options[0].type ===
-            ApplicationCommandOptionType.Subcommand
+          [
+            ApplicationCommandOptionType.Subcommand,
+            ApplicationCommandOptionType.SubcommandGroup
+          ].includes(interaction.data.options[0].type)
           ? interaction.data.options[0].name
           : Symbols.baseCommand
         : Symbols.baseCommand
