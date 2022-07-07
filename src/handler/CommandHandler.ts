@@ -21,6 +21,7 @@ import { RequestData } from '@discordjs/rest'
 import { MessageTypes, parse, parseMessage } from '@jadl/builders'
 import FormData from 'form-data'
 import { APIInteractionResponse } from 'discord-api-types/v10'
+import { InteractionCommandResponse } from '../structures/InteractionCommandResponse'
 
 export interface CommandHandlerOptions {
   /**
@@ -217,10 +218,13 @@ export class CommandHandler extends CommandFactory {
         await this.worker.api.post(
           `/interactions/${int.id}/${int.token}/callback`,
           {
-            body: {
-              type: InteractionResponseType.ChannelMessageWithSource,
-              data: msg
-            } as APIInteractionResponse
+            body:
+              res instanceof InteractionCommandResponse
+                ? res.data
+                : ({
+                    type: InteractionResponseType.ChannelMessageWithSource,
+                    data: msg
+                  } as APIInteractionResponse)
           }
         )
       }

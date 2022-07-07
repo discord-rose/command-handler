@@ -25,6 +25,8 @@ export * from './handler/CommandFactory'
 export * from './handler/CommandHandler'
 
 export * from './structures/CommandError'
+export * from './structures/SimpleError'
+export * from './structures/InteractionCommandResponse'
 
 export * from './utils/EphemeralEmbed'
 export * from './utils/Decorators'
