@@ -2,7 +2,7 @@ import { Decorators } from '../../utils/Decorators'
 
 import { humanReadablePermissions, PermissionUtils } from 'jadl'
 import { CommandError } from '../../structures/CommandError'
-import { Embed } from '@jadl/embed'
+import { Embed } from '@jadl/builders'
 
 export const UserPerms = Decorators.createCommandDecorator<
   [

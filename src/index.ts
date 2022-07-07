@@ -25,16 +25,6 @@ export * from './handler/CommandFactory'
 export * from './handler/CommandHandler'
 
 export * from './structures/CommandError'
-export * from './structures/FileBuilder'
-
-export {
-  FormattedResult,
-  NonBufferTypes,
-  SendMessageType,
-  formatMessage,
-  MessageTypes,
-  resolveString
-} from './utils/MessageFormatter'
 
 export * from './utils/EphemeralEmbed'
 export * from './utils/Decorators'

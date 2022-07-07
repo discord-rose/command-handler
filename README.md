@@ -29,7 +29,7 @@ Our main decorator for a command is `@Command(name: string, description: string)
 
 Once you've declared your class, you create a method to run the command through, and mark it with a `@Run()` decorator
 
-You can return a traditional MessageTypes and it will respond to the command with that. Here's an example;
+You can return anything that can be parsed by [@jadl/builders](https://npmjs.com/@jadl/builders), like a string, or one of the many builders. Here's an example;
 
 ```ts
 import { Command } from '@jadl/cmd'
@@ -55,7 +55,7 @@ e.g let's add a user via the `Options.User` decorator. This will create a Discor
 
 ```ts
 import { Command, Run, Worker, Author } from '@jadl/cmd'
-import { Embed } from '@jadl/embed' // optional, but used for embeds!
+import { Embed } from '@jadl/builders' // optional, but used for many different compatible builders!
 
 @Command('hello', 'Say hello!')
 export class HelloCommand {
@@ -92,7 +92,7 @@ e.g let's add a user via the `Options.User` decorator. This will create a Discor
 
 ```ts
 import { Command, Run, Options } from '@jadl/cmd'
-import { Embed } from '@jadl/embed'
+import { MessageBuilder, Embed } from '@jadl/builders'
 
 @Command('wave', 'Wave at someone!')
 export class WaveCommand {
@@ -103,8 +103,11 @@ export class WaveCommand {
     }) user: APIUser // creates an option accepting type user
   ) {
     // you can now use this parameter as it's actual value! making it super easy to do what you need to do
-    return new Embed()
-      .description(`Hey <@${user.id}>! Someone waved at you`)
+    return new MessageBuilder({ content: `Hey <@${user.id}>`})
+      .addEmbed(
+        new Embed()
+          .description('Someone waved at you')
+      )
   }
 }
 ```
@@ -138,7 +141,7 @@ e.g lets make our wave command a user command!
 
 ```ts
 import { Command, Run, Targets, Author } from '@jadl/cmd'
-import { Embed } from '@jadl/embed'
+import { Embed } from '@jadl/builders'
 
 import { ApplicationCommandType } from 'discord-api-types/v9'
 

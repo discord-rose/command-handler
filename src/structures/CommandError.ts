@@ -1,4 +1,4 @@
-import { MessageTypes } from '../utils/MessageFormatter'
+import { MessageTypes } from '@jadl/builders'
 
 export class CommandError extends Error {
   name = 'CommandError'

@@ -2,14 +2,6 @@ import { Worker } from 'jadl'
 
 import { CommandFactory } from '../handler/CommandFactory'
 
-import {
-  formatMessage,
-  internalFormatMessage,
-  MessageTypes,
-  SendMessageType,
-  turnNonBuffer
-} from '../utils/MessageFormatter'
-
 import { Symbols } from '../Symbols'
 import {
   APIApplicationCommand,
@@ -26,6 +18,9 @@ import { CommandError } from '../structures/CommandError'
 import { CommandInteraction } from '../types'
 import { SeekInteractions } from '../utils/InteractionChanges'
 import { RequestData } from '@discordjs/rest'
+import { MessageTypes, parse, parseMessage } from '@jadl/builders'
+import FormData from 'form-data'
+import { APIInteractionResponse } from 'discord-api-types/v10'
 
 export interface CommandHandlerOptions {
   /**
@@ -171,10 +166,10 @@ export class CommandHandler extends CommandFactory {
     } catch (err: unknown) {
       if (err instanceof CommandError) {
         if (this.options.ephemeralError) {
-          const formatted = formatMessage(err.response)
-          if (formatted.type === SendMessageType.JSON) {
+          const formatted = parseMessage(err.response)
+          if (!(formatted instanceof FormData)) {
             err.response = {
-              ...formatted.data,
+              ...formatted,
               flags: MessageFlags.Ephemeral
             }
           }
@@ -195,36 +190,19 @@ export class CommandHandler extends CommandFactory {
     }
   }
 
+  private async editOriginal(res: MessageTypes, int: CommandInteraction) {
+    await this.worker.api.patch(
+      `/webhooks/${this.worker.user.id}/${int.token}/messages/@original`,
+      parse(res)
+    )
+  }
+
   async handleRes(res: MessageTypes, int: CommandInteraction): Promise<void> {
-    const msg = internalFormatMessage(res)
-
-    const toSend =
-      msg.type === SendMessageType.JSON
-        ? {
-            body: int.responded
-              ? msg.data
-              : 'type' in msg.data
-              ? msg.data
-              : {
-                  type: InteractionResponseType.ChannelMessageWithSource,
-                  data: msg.data
-                }
-          }
-        : ({
-            body: turnNonBuffer(msg.data.data.extra),
-            attachments: msg.data.data.files.map((x) => ({
-              fileName: x.name,
-              rawBuffer: x.buffer
-            }))
-          } as RequestData)
-
-    if (!int.responded && msg.type !== SendMessageType.FormData) {
-      await this.worker.api.post(
-        `/interactions/${int.id}/${int.token}/callback`,
-        toSend
-      )
+    if (int.responded) {
+      await this.editOriginal(res, int)
     } else {
-      if (!int.responded) {
+      const msg = parseMessage(res)
+      if (msg instanceof FormData) {
         await this.worker.api.post(
           `/interactions/${int.id}/${int.token}/callback`,
           {
@@ -233,13 +211,19 @@ export class CommandHandler extends CommandFactory {
             }
           }
         )
-      }
 
-      int.responded = true
-      await this.worker.api.patch(
-        `/webhooks/${this.worker.user.id}/${int.token}/messages/@original`,
-        toSend
-      )
+        await this.editOriginal(res, int)
+      } else {
+        await this.worker.api.post(
+          `/interactions/${int.id}/${int.token}/callback`,
+          {
+            body: {
+              type: InteractionResponseType.ChannelMessageWithSource,
+              data: msg
+            } as APIInteractionResponse
+          }
+        )
+      }
     }
   }
 }

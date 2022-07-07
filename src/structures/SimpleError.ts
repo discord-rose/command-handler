@@ -1,4 +1,4 @@
-import { Embed } from '@jadl/embed'
+import { Embed } from '@jadl/builders'
 import { CommandError } from './CommandError'
 
 export class SimpleError extends CommandError {
