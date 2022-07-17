@@ -11,6 +11,8 @@ export const Command = Decorators.createBaseDecorator<
 
   interaction.name = name
   interaction.type = type ?? ApplicationCommandType.ChatInput
+  if (!interaction.default_member_permissions)
+    interaction.default_member_permissions = null
 
   if (interaction.type === ApplicationCommandType.ChatInput) {
     interaction.description = description ?? 'Missing Description'
