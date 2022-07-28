@@ -22,6 +22,7 @@ import { MessageTypes, parse, parseMessage } from '@jadl/builders'
 import FormData from 'form-data'
 import { APIInteractionResponse } from 'discord-api-types/v10'
 import { InteractionCommandResponse } from '../structures/InteractionCommandResponse'
+import { WorkerInject } from '../structures/WorkerInject'
 
 export interface CommandHandlerOptions {
   /**
@@ -40,10 +41,19 @@ export class CommandHandler extends CommandFactory {
 
   constructor(
     public readonly worker: Worker,
-    commands: Array<new () => any>,
+    injections: Array<WorkerInject | (new () => any)>,
     options: CommandHandlerOptions = {}
   ) {
-    super(commands)
+    super(
+      injections.filter((x) => !(x instanceof WorkerInject)) as Array<
+        new () => any
+      >
+    )
+
+    const workerInjects = injections.filter(
+      (x) => x instanceof WorkerInject
+    ) as WorkerInject[]
+    workerInjects.forEach((inject) => inject._setup(this.worker))
 
     this.options = {
       interactionGuild: options.interactionGuild,
@@ -52,6 +62,7 @@ export class CommandHandler extends CommandFactory {
 
     worker.on('INTERACTION_CREATE', (int) => {
       void this.handleInteraction(int as any)
+      workerInjects.forEach((inject) => inject._onInteraction(int, this.worker))
     })
 
     worker.on('READY', () => {

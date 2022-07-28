@@ -24,6 +24,7 @@ export * from './decorators/parameters/Targets'
 export * from './handler/CommandFactory'
 export * from './handler/CommandHandler'
 
+export * from './structures/WorkerInject'
 export * from './structures/CommandError'
 export * from './structures/SimpleError'
 export * from './structures/InteractionCommandResponse'
