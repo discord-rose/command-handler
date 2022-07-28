@@ -1,4 +1,5 @@
 import { MessageBuilder, parse, parseToMessageBuilder } from '@jadl/builders'
+import { APIMessageComponentInteraction } from 'discord-api-types/v10'
 
 import {
   APIMessageActionRowComponent,
@@ -62,7 +63,7 @@ export class ButtonMenu<D extends any = {}, W extends Worker = Worker>
 
     const dataObject = Object.fromEntries(new URLSearchParams(data) as any) as D
 
-    const res = await this[section.method](dataObject)
+    const res = await this[section.method](dataObject, int)
 
     const messageBuilder = parseToMessageBuilder(res)
 
@@ -102,8 +103,12 @@ export class ButtonMenu<D extends any = {}, W extends Worker = Worker>
     rows.forEach((x) => builder.addComponentRow(x))
   }
 
-  async start(section: string, data: D) {
-    const res = await this[section](data)
+  async start(
+    section: string,
+    data: D,
+    interaction?: APIMessageComponentInteraction
+  ) {
+    const res = await this[section](data, interaction)
 
     const messageBuilder = parseToMessageBuilder(res)
 
