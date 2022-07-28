@@ -173,6 +173,28 @@ class BanCommand {
 }
 ```
 
+### AutoComplete
+
+You can add an autocomplete method to your parameters with the `AutoComplete` decorator
+
+```ts
+@Command('location', 'Find location')
+export class LocationCommand {
+  @Run()
+  location (
+    @AutoComplete(async (term) => { // make sure autocomplete is ABOVE option def
+      const search = await searcher.search(term) // term is the search term
+
+      return search.map(x => { name: x.name, value: x.name }) // return options
+    })
+    @Options.String('location', 'Location to find')
+      location: string
+  ) {
+    ...
+  }
+}
+```
+
 ## Creating your own
 
 You can also make your own decorators with the `Decorators` object

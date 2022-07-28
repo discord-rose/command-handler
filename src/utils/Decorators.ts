@@ -7,6 +7,7 @@ import type {
 } from 'discord-api-types/v9'
 import { CommandInteraction } from '../types'
 import { CommandHandler } from '../handler/CommandHandler'
+import { WorkerInject } from '../structures/WorkerInject'
 
 export interface CommandMeta {
   canRun: Array<RunningFunction<boolean>>
@@ -14,6 +15,9 @@ export interface CommandMeta {
   name: string | symbol
   params: ParamResolver[]
   interactionOptions?: APIApplicationCommandOption[]
+  indexToOption: {
+    [key: number]: string
+  }
   method: string
 }
 
@@ -33,7 +37,9 @@ const baseSymbols = {
 
   [Symbols.guild]: undefined as Snowflake | undefined,
 
-  [Symbols.commands]: [] as CommandMeta[]
+  [Symbols.commands]: [] as CommandMeta[],
+
+  [Symbols.injections]: [] as WorkerInject[]
 }
 
 export type BaseSymbols = typeof baseSymbols
@@ -48,11 +54,12 @@ export type commandDecorator<O extends any> = (
   base: BaseSymbols,
   descriptor: TypedPropertyDescriptor<Function>
 ) => void | Promise<void>
-export type parameterDecorator<O extends any> = (
+export type parameterDecorator<O extends any, R extends any = ParamResolver> = (
   options: O,
   command: CommandMeta,
-  base: BaseSymbols
-) => ParamResolver
+  base: BaseSymbols,
+  index: number
+) => R
 
 export const Decorators = {
   createBaseDecorator: <O extends any[] = undefined[]>(
@@ -102,6 +109,7 @@ export const Decorators = {
         onRun: [],
         method,
         params: [],
+        indexToOption: {},
         name: ''
       }
 
@@ -141,9 +149,23 @@ export const Decorators = {
 
         const command = Decorators.getCommandMeta(target, method)
 
-        const fn = paramHandler(options, command, target)
+        const fn = paramHandler(options, command, target, index)
 
         command.params[index] = fn
+      }
+    }
+  },
+
+  createParameterAddition: <O extends any[] = undefined[]>(
+    paramHandler: parameterDecorator<O, void>
+  ): ((...options: O) => ParameterDecorator) => {
+    return function (...options): ParameterDecorator {
+      return function (target: BaseSymbols, method: string, index: number) {
+        Decorators.setupCommandMeta(target)
+
+        const command = Decorators.getCommandMeta(target, method)
+
+        paramHandler(options, command, target, index)
       }
     }
   }

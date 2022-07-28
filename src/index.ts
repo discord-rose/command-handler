@@ -11,6 +11,7 @@ export * from './decorators/interactions/Options'
 export * from './decorators/interactions/Thinks'
 export * from './decorators/interactions/GuildInteraction'
 export * from './decorators/interactions/Permissions'
+export * from './decorators/interactions/AutoComplete'
 
 export * from './decorators/parameters/Author'
 export * from './decorators/parameters/Channel'

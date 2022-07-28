@@ -30,12 +30,14 @@ type CommandOptionOptions = [
 
 export const CommandOption =
   Decorators.createParameterDecorator<CommandOptionOptions>(
-    ([data, customFn], cmd, base) => {
+    ([data, customFn], cmd, base, index) => {
       if (!base[Symbols.interaction].options)
         base[Symbols.interaction].options = []
 
       if (!cmd.interactionOptions) cmd.interactionOptions = []
       cmd.interactionOptions.push(data)
+
+      cmd.indexToOption[index] = data.name
 
       return (int) => {
         if (int.data.type !== ApplicationCommandType.ChatInput) return

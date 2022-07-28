@@ -9,4 +9,6 @@ export class Symbols {
   static readonly guild = Symbol(Symbols.prefix + 'guilds')
 
   static readonly baseCommand = Symbol(Symbols.prefix + 'base-command')
+
+  static readonly injections = Symbol(Symbols.prefix + 'injections')
 }
