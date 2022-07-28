@@ -30,5 +30,7 @@ export * from './structures/SimpleError'
 export * from './structures/InteractionCommandResponse'
 
 export * from './extras/ButtonMenu'
+export * from './extras/ComponentRunner'
+
 export * from './utils/EphemeralEmbed'
 export * from './utils/Decorators'

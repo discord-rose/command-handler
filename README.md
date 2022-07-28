@@ -309,7 +309,7 @@ export const helpMenu = new HelpMenu() // instantiate your menu
 
 **src/index.ts**
 ```ts
-// you need to import the button as a WorkerInject into the command handler
+// you need to import the menu as a WorkerInject into the command handler
 new CommandHandler(
   worker,
   [
@@ -339,7 +339,7 @@ export class HelpCommand {
 
 This will just return a menu, with two buttons, where when you click on the corresponding button, the embed for that section will show up!
 
-### Stateless design
+#### Stateless design
 
 ButtonMenu's can hold stateless values within the button's `custom_id`. All you need to do is use the first parameter of every function, which is a mutable object that holds the data, and will update on response. E.g
 
@@ -376,3 +376,52 @@ barMenu.start('foo', { foo: 'def' })
 Because it holds all of this data statelessly, it will even maintain it's data over restarts.
 
 > :warning: There is a limitation on the length of the `custom_id`, it is not recommended to store information entered by a user / not maintainably short. Data is help in a URLSearchParams format.
+
+### ComponentRunner
+
+ComponentRunner allows you to create a button + handler within a single class, and feed it to a MessageBuilder, making code more seamless and easy to comprehend.
+
+**src/commands/HelloWorld.ts**
+```ts
+import { ComponentRunner } from '@jadl/cmd'
+import { MessageBuilder } from '@jadl/builders'
+
+export class HelloWorldCommand {
+  // static to make it easier to import
+  static helloWorldButton = new ComponentRunner({
+    // component object
+    type: ComponentType.Button // works with select menu too
+    style: ButtonStyle.Primary,
+    custom_id: 'hello_world_button', // Make sure this is unique!
+    label: 'Click me'
+  })
+  .setHandle((int, worker) => {
+    // handle the interaction
+    return new Embed() // return anything parseable
+      .title('You click it good job.')
+  })
+
+  @Run()
+  run () {
+    return new MessageBuilder()
+      .setMessage({ content: 'Click button!!' })
+      .addComponentRow(HelloWorldCommand.helloWorldButton) // add the button to a component row
+  }
+}
+```
+
+**src/index.ts**
+```ts
+// you need to import the button as a WorkerInject into the command handler
+new CommandHandler(
+  worker,
+  [
+    HelloWorldCommand,
+    // ... your commands
+    HelloWorldCommand.helloWorldButton // the button
+    // ... whatever else
+  ]
+)
+```
+
+And your message will now have a button, that when pressed will return your new embed. Much nicer to organize!
