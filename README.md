@@ -264,3 +264,115 @@ export class WaveCommand {
   }
 }
 ```
+
+## Extras
+
+`@jadl/cmd` comes with some pre-built extra interaction helpers, not necesarilly just do with commands
+
+### ButtonMenu
+
+Creates an easy to understand button navigation menu
+
+Say we want to create a categorized help command
+
+**src/menus/HelpMenu.ts**
+```ts
+import { ButtonMenu, Section } from '@jadl/cmd'
+
+export class HelpMenu extends ButtonMenu {
+  @Section({
+    // button object
+    style: ButtonStyle.Primary,
+    label: 'Fun'
+  })
+  fun () {
+    return new Embed()
+      .title('Fun')
+      .field('/8ball', '8-ball command')
+      .field('/fortune', 'Gets your fortune')
+  }
+
+  @Section({
+    style: ButtonStyle.Primary,
+    label: 'Admin'
+  })
+  admin () {
+    return new Embed()
+      .title('Admin')
+      .field('/ban', 'Bans user')
+      .field('/kick', 'Kicks user')
+  }
+}
+
+export const helpMenu = new HelpMenu() // instantiate your menu
+```
+
+**src/index.ts**
+```ts
+// you need to import the button as a WorkerInject into the command handler
+new CommandHandler(
+  worker,
+  [
+    HelpCommand,
+    // ... your commands
+    helpMenu // the instantiated help menu
+    // ... whatever else
+  ]
+)
+```
+
+**src/commands/HelpCommand**
+```ts
+import { helpMenu } from '../menu/HelpMenu'
+
+@Command('help', 'Get help')
+export class HelpCommand {
+  @Run()
+  help () {
+    return helpMenu.start(
+      'fun' // the method name where you want to start
+    )
+    // .start() returns a MessageBuilder
+  }
+}
+```
+
+This will just return a menu, with two buttons, where when you click on the corresponding button, the embed for that section will show up!
+
+### Stateless design
+
+ButtonMenu's can hold stateless values within the button's `custom_id`. All you need to do is use the first parameter of every function, which is a mutable object that holds the data, and will update on response. E.g
+
+```ts
+interface BarMenuData {
+  foo: string // the selected video
+}
+
+export class BarMenu extends ButtonMenu<BarMenuData> {
+  @Section({
+    ...
+  })
+  foo (data: BarMenuData) {
+    data.foo = 'abc' // set the data
+
+    return 'hello' // respond
+  }
+
+  @Section({
+    ...
+  })
+  bar (data: BarMenuData) {
+    data.foo // will be 'abc' if foo was clicked first
+    // change or manipulate or use
+
+    ...
+  }
+}
+
+// when starting the menu you must instantiate with initial data as well
+barMenu.start('foo', { foo: 'def' })
+```
+
+Because it holds all of this data statelessly, it will even maintain it's data over restarts.
+
+> :warning: There is a limitation on the length of the `custom_id`, it is not recommended to store information entered by a user / not maintainably short. Data is help in a URLSearchParams format.
