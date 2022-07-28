@@ -55,7 +55,6 @@ export class CommandHandler extends CommandFactory {
     ) as WorkerInject[]
 
     this.commands.forEach((x) => {
-      console.log(x[Symbols.injections])
       if (x[Symbols.injections]) workerInjects.push(...x[Symbols.injections])
     })
 
