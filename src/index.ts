@@ -32,6 +32,6 @@ export * from './structures/InteractionCommandResponse'
 
 export * from './extras/ButtonMenu'
 export * from './extras/ComponentRunner'
+export * from './extras/ModalRunner'
 
-export * from './utils/EphemeralEmbed'
 export * from './utils/Decorators'

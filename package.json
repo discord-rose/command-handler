@@ -1,6 +1,6 @@
 {
   "name": "@jadl/cmd",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "A command handler for JADL",
   "main": "dist/index.js",
   "scripts": {
@@ -44,7 +44,6 @@
   },
   "dependencies": {
     "@jadl/builders": "^0.1.0",
-    "@jadl/embed": "^0.0.5",
     "deep-equal": "^2.0.5",
     "form-data": "^4.0.0",
     "jadl": "^0.2.0"

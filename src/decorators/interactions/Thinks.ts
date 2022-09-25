@@ -1,6 +1,5 @@
 import { APIInteractionResponse, InteractionResponseType, MessageFlags } from 'discord-api-types/v9'
 import { Decorators } from '../../utils/Decorators'
-import { EphemeralEmbed } from '../../utils/EphemeralEmbed'
 
 export const Thinks = Decorators.createCommandDecorator<[ephemeral?: boolean]>(
   ([ephemeral], cmd) => {

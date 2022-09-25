@@ -397,7 +397,7 @@ barMenu.start('foo', { foo: 'def' })
 
 Because it holds all of this data statelessly, it will even maintain it's data over restarts.
 
-> :warning: There is a limitation on the length of the `custom_id`, it is not recommended to store information entered by a user / not maintainably short. Data is help in a URLSearchParams format.
+> :warning: There is a limitation on the length of the `custom_id`, it is not recommended to store information entered by a user / not maintainably short. Data is held in a URLSearchParams format.
 
 ### ComponentRunner
 
@@ -447,3 +447,45 @@ new CommandHandler(
 ```
 
 And your message will now have a button, that when pressed will return your new embed. Much nicer to organize!
+
+### ModalRunner
+
+ModalRunner allows for a similar experience as ComponentRunner, except with modals
+
+**src/commands/HelloWorld.ts**
+```ts
+import { ComponentRunner } from '@jadl/cmd'
+import { MessageBuilder } from '@jadl/builders'
+
+export class HelloWorldCommand {
+  // static to make it easier to import
+  static helloWorldModal = new ModalRunner('Hello World!') // enter the title in the constructor
+    .addTextInput('Foo Bar', { // add a label for the component
+      // now add any extra props, the only required one is "style"
+      style: TextInputStyle.Paragraph
+    })
+    .addTextInput('Welcome', { // add multiple in a builder format
+      style: TextInputStyle.Short,
+      placeholder: 'Put some stuff in here!'
+    })
+    .setHandle((options, worker, interaction) => {
+      // get all of your info here
+
+      // options is a cool object that will be an object mapped by the label name to it's value
+      console.log(options['Foo Bar'])
+      // our object will look something like { 'Foo Bar': '...', 'Welcome': '...' }
+
+      // and you can return a message
+      return new MessageBuilder()
+        .setMessage({ content: 'got your submission!' })
+      
+      // or return nothing for no response
+    })
+
+
+  @Run()
+  run () {
+    return HelloWorldCommand.helloWorldModal.render() // return the modal to any interaction response!
+  }
+}
+```
