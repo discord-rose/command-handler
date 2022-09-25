@@ -97,7 +97,7 @@ export class ModalRunner<
     if (!res) {
       await worker.api.post(Routes.interactionCallback(int.id, int.token), {
         body: {
-          type: InteractionResponseType.DeferredChannelMessageWithSource
+          type: InteractionResponseType.DeferredMessageUpdate
         } as APIInteractionResponse
       })
     } else {
