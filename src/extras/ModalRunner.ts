@@ -19,11 +19,12 @@ const createCustomId = (title: string) =>
 
 type ModalRunnerHandler<
   W extends Worker = Worker,
+  D = undefined,
   OO extends ObjectOptions[] = []
 > = (
   options: {
     [key in OO[number]['name']]: string
-  },
+  } & D,
   worker: W,
   int: APIModalSubmitInteraction
 ) => MessageTypes | Promise<MessageTypes> | void
@@ -34,6 +35,7 @@ interface ObjectOptions {
 
 export class ModalRunner<
   W extends Worker = Worker,
+  D = undefined,
   OO extends ObjectOptions[] = []
 > extends WorkerInject<W> {
   private data: APIModalInteractionResponseCallbackData = {
@@ -42,7 +44,7 @@ export class ModalRunner<
     title: ''
   }
 
-  private handle?: ModalRunnerHandler<W>
+  private handle?: ModalRunnerHandler<W, any, OO>
 
   constructor(public title: string, public customId = createCustomId(title)) {
     super()
@@ -51,7 +53,7 @@ export class ModalRunner<
     this.data.custom_id = customId
   }
 
-  setHandle(handle: ModalRunnerHandler<W, OO>): this {
+  setHandle(handle: ModalRunnerHandler<W, D, OO>): this {
     this.handle = handle
 
     return this
@@ -61,7 +63,7 @@ export class ModalRunner<
     name: N,
     data: Omit<APITextInputComponent, 'custom_id' | 'label' | 'type'>,
     customId?: string
-  ): ModalRunner<W, [...OO, { name: N }]> {
+  ): ModalRunner<W, D, [...OO, { name: N }]> {
     customId = customId || createCustomId(name)
 
     this.data.components.push({
@@ -84,13 +86,30 @@ export class ModalRunner<
     if (int.data.custom_id !== this.customId) return
 
     const data = int.data.components!.map((x) => x.components).flat()
-    const options = {}
+    let options = {}
 
     const components = this.data.components!.map((x) => x.components).flat()
     data.forEach((opt) => {
-      options[components.find((x) => x.custom_id === opt.custom_id)!.label] =
-        opt.value
+      options[
+        components.find(
+          (x) => x.custom_id === opt.custom_id.split('$')[0]
+        )!.label
+      ] = opt.value
     })
+
+    const dataComponent = int.data.components![0]?.components?.[0]
+    if (dataComponent) {
+      const [customId, possibleData] = dataComponent.custom_id.split('$')
+      dataComponent.custom_id = customId
+
+      if (possibleData) {
+        const obj = Object.fromEntries(
+          new URLSearchParams(possibleData).entries()
+        )
+
+        options = { ...options, ...obj }
+      }
+    }
 
     const res = await this.handle?.(options, worker, int)
 
@@ -110,10 +129,18 @@ export class ModalRunner<
     }
   }
 
-  render(): InteractionCommandResponse {
+  render(extraInfo?: D): InteractionCommandResponse {
+    let data = this.data
+    if (extraInfo) {
+      data = JSON.parse(JSON.stringify(this.data))
+
+      data.components[0].components[0].custom_id += `$${new URLSearchParams(
+        extraInfo as unknown as Record<string, string>
+      ).toString()}`
+    }
     return new InteractionCommandResponse({
       type: InteractionResponseType.Modal,
-      data: this.data
+      data: data
     })
   }
 }
