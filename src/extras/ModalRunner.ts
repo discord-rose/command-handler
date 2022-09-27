@@ -11,6 +11,7 @@ import {
 } from 'discord-api-types/v10'
 import { APIInteraction, InteractionType } from 'discord-api-types/v9'
 import { Worker } from 'jadl'
+import { CommandHandler, MessageReturnType } from '../handler/CommandHandler'
 import { InteractionCommandResponse } from '../structures/InteractionCommandResponse'
 import { WorkerInject } from '../structures/WorkerInject'
 
@@ -27,7 +28,7 @@ type ModalRunnerHandler<
   } & D,
   worker: W,
   int: APIModalSubmitInteraction
-) => MessageTypes | Promise<MessageTypes> | void
+) => MessageReturnType | Promise<MessageReturnType> | void
 
 interface ObjectOptions {
   name: string
@@ -114,18 +115,22 @@ export class ModalRunner<
     const res = await this.handle?.(options, worker, int)
 
     if (!res) {
-      await worker.api.post(Routes.interactionCallback(int.id, int.token), {
-        body: {
-          type: InteractionResponseType.DeferredMessageUpdate
-        } as APIInteractionResponse
-      })
+      await CommandHandler.callback(
+        worker,
+        { type: InteractionResponseType.DeferredMessageUpdate },
+        int
+      )
+    } else if (res instanceof InteractionCommandResponse) {
+      await CommandHandler.callback(worker, res.data, int)
     } else {
-      await worker.api.post(Routes.interactionCallback(int.id, int.token), {
-        body: {
+      await CommandHandler.callback(
+        worker,
+        {
           type: InteractionResponseType.ChannelMessageWithSource,
-          data: parseMessage(res)
-        } as APIInteractionResponse
-      })
+          data: parseMessage(res) as any
+        },
+        int
+      )
     }
   }
 

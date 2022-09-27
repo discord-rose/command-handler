@@ -20,9 +20,15 @@ import { SeekInteractions } from '../utils/InteractionChanges'
 import { RequestData } from '@discordjs/rest'
 import { MessageTypes, parse, parseMessage } from '@jadl/builders'
 import FormData from 'form-data'
-import { APIInteractionResponse } from 'discord-api-types/v10'
+import {
+  APIInteraction,
+  APIInteractionResponse,
+  RESTPostAPIInteractionCallbackJSONBody
+} from 'discord-api-types/v10'
 import { InteractionCommandResponse } from '../structures/InteractionCommandResponse'
 import { WorkerInject } from '../structures/WorkerInject'
+
+export type MessageReturnType = MessageTypes | InteractionCommandResponse
 
 export interface CommandHandlerOptions {
   /**
@@ -214,34 +220,46 @@ export class CommandHandler extends CommandFactory {
     )
   }
 
-  async handleRes(res: MessageTypes, int: CommandInteraction): Promise<void> {
-    if (int.responded) {
+  static async callback(
+    worker: Worker,
+    body: RESTPostAPIInteractionCallbackJSONBody,
+    int: APIInteraction
+  ) {
+    return await worker.api.post(
+      `/interactions/${int.id}/${int.token}/callback`,
+      {
+        body
+      }
+    )
+  }
+
+  private async callback(
+    body: RESTPostAPIInteractionCallbackJSONBody,
+    int: CommandInteraction
+  ) {
+    return await CommandHandler.callback(this.worker, body, int)
+  }
+
+  async handleRes(
+    res: MessageReturnType,
+    int: CommandInteraction
+  ): Promise<void> {
+    if (res instanceof InteractionCommandResponse) {
+      await this.callback(res.data, int)
+    } else if (int.responded) {
       await this.editOriginal(res, int)
     } else {
       const msg = parseMessage(res)
       if (msg instanceof FormData) {
-        await this.worker.api.post(
-          `/interactions/${int.id}/${int.token}/callback`,
-          {
-            body: {
-              type: InteractionResponseType.DeferredChannelMessageWithSource
-            }
-          }
+        await this.callback(
+          { type: InteractionResponseType.DeferredChannelMessageWithSource },
+          int
         )
-
         await this.editOriginal(res, int)
       } else {
-        await this.worker.api.post(
-          `/interactions/${int.id}/${int.token}/callback`,
-          {
-            body:
-              res instanceof InteractionCommandResponse
-                ? res.data
-                : ({
-                    type: InteractionResponseType.ChannelMessageWithSource,
-                    data: msg
-                  } as APIInteractionResponse)
-          }
+        await this.callback(
+          { type: InteractionResponseType.ChannelMessageWithSource, data: msg },
+          int
         )
       }
     }
